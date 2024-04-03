@@ -19,5 +19,10 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('mr_reporting_app.urls'))
+    path('', include('mr_reporting_app.urls')),
+    path("select2/", include("django_select2.urls")),
 ]
+
+# admin.site.site_title = "MR Reporting Application"
+admin.site.site_header = "MR Reporting Administration"
+admin.site.index_title = "MR Reporting Administration"
