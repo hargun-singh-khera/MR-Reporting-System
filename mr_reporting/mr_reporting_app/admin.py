@@ -1,5 +1,12 @@
 from django.contrib import admin
 from mr_reporting_app.models import *
+from django import forms
+from django.contrib.auth.models import Group
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.forms import ReadOnlyPasswordHashField
+from django.core.exceptions import ValidationError
+from django.forms import TextInput, Textarea
+from django.contrib.auth.forms import UserCreationForm
 # Register your models here.
 
 class CountryMasterAdmin(admin.ModelAdmin):
@@ -28,10 +35,31 @@ class AreaMasterAdmin(admin.ModelAdmin):
 class DesignationMasterAdmin(admin.ModelAdmin):
     list_display = ('designation',)
 
+
+class CustomUserCreationForm(UserCreationForm):
+    class Meta:
+        model = UserMaster
+        fields = '__all__'
+
 class UserMasterAdmin(admin.ModelAdmin):
-    pass
-    # list_display = ('email', 'name', 'is_active', 'is_staff', 'is_superuser', 'date_joined', 'last_login')
-    # list_display = ('name', 'area', 'designation', 'date_of_birth', 'date_of_joining','mobile_number')
+    form = CustomUserCreationForm
+    model = UserMaster
+    ordering = ('name',)
+    search_fields = ('email', 'username', 'name',)
+    list_filter = ('email', 'name', 'name', 'is_active', 'is_staff')
+    list_display = ('name', 'username', 'email', 'mobile_number', 'is_active', 'is_staff')
+    fieldsets = (
+        ('User Creation Form', {'fields': ('email', 'username', 'name', 'mobile_number', 'password1', 'password2')}),
+        ('Permissions', {'fields': ('is_staff', 'is_active')})
+    )
+    
+    add_fieldsets = (
+        ('User Creation Form', {
+            'classes': ('wide',),
+            'fields': ('email', 'user_name', 'name', 'password1', 'password2', 'is_active', 'is_staff')}
+         ),
+    )
+    
 
 class UnitMasterAdmin(admin.ModelAdmin):
     list_display = ('unit',)

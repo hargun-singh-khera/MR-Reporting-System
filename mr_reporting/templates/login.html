@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block body %}
-<!-- {% load static %} -->
+{% load static %}
 <div class="container d-flex align-items-center justify-content-center " style="margin-top:10rem;">
     <div class="row g-0">
         <div class="col-md-6 d-flex align-items-center justify-content-center">
@@ -14,11 +14,22 @@
                     <h5 style="font-size:30px; margin-bottom:0px; font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;" class="card-title mt-2" >Hello! Welcome Back</h5>
                     <small class="text-body-secondary">Log in with your data that you entered during your registration.</small>
     
-                    <form class="w-auto m-auto mt-3" action="" method="POST">
+                    <form class="w-auto m-auto mt-3" action="" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% if messages %}
+                            <div class="alert alert-danger" role="alert">
+                                {% for message in messages %}
+                                {{message}}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <!-- <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="name" class="form-control" id="username" name="username" aria-describedby="emailHelp" placeholder="Username" required/> 
+                        </div> -->
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email address</label>
-                            <input type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp" placeholder="Email address" required/>
-                            <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp" placeholder="Email" required/> 
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
