@@ -5,6 +5,7 @@ from .models import UserMaster
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
+
 # Create your views here.
 def login_page(request):
     if request.method == "POST":
@@ -28,14 +29,15 @@ def login_page(request):
     else:
         return render(request, 'login.html')
 
+
 def logout_page(request):
     logout(request)
     return redirect('/login')
 
 @login_required(login_url="/login")
 def redirect_url(request):
-    pass
-    # return render(request, 'daily_report_form.html')
+    # pass
+    return render(request, 'detail_report_form.html')
 
 @login_required(login_url="/login")
 def daily_report_form(request):
@@ -44,3 +46,5 @@ def daily_report_form(request):
 @login_required(login_url="/login")
 def areamaster_add(request):
     return HttpResponse("Area Master")
+
+

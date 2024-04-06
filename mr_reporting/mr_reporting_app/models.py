@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-# from datetime import datetime
+from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 
 # Create your models here.
@@ -83,6 +83,7 @@ class CustomUserManager(BaseUserManager):
         user = self.model(email=email, username=username, **other_fields)
         user.set_password(password)
         user.save()
+        # self.send_email_to_user(email)
         return user
 
     def create_superuser(self, email, username, password, **other_fields):
@@ -95,6 +96,8 @@ class CustomUserManager(BaseUserManager):
         if other_fields.get('is_superuser') is not True:
             raise ValueError("Superuser must be assigned to is_staff=True.")
         return self.create_user(email, username, password, **other_fields)
+    
+    
 
 class UserMaster(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=255, blank=False)
@@ -119,4 +122,3 @@ class UserMaster(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.username
-    

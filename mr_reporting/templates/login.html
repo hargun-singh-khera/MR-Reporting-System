@@ -11,34 +11,31 @@
             <div class="card shadow-lg border-0 p-4 mb-5 rounded">
                 <div class="col my-auto">
                     <div class="card-body">
-                    <h5 style="font-size:30px; margin-bottom:0px; font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;" class="card-title mt-2" >Hello! Welcome Back</h5>
-                    <small class="text-body-secondary">Log in with your data that you entered during your registration.</small>
-    
-                    <form class="w-auto m-auto mt-3" action="" method="POST" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        {% if messages %}
-                            <div class="alert alert-danger" role="alert">
-                                {% for message in messages %}
-                                {{message}}
-                                {% endfor %}
+                        <h5 style="font-size:30px; margin-bottom:0px; font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;" class="card-title mt-2" >Hello! Welcome Back</h5>
+                        <small class="text-body-secondary">Log in with your credentials.</small>
+        
+                        <form class="w-auto m-auto mt-4" action="" method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {% if messages %}
+                                <div class="alert alert-danger" role="alert">
+                                    {% for message in messages %}
+                                    {{message}}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp" placeholder="Email address" required/> 
                             </div>
-                        {% endif %}
-                        <!-- <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
-                            <input type="name" class="form-control" id="username" name="username" aria-describedby="emailHelp" placeholder="Username" required/> 
-                        </div> -->
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp" placeholder="Email" required/> 
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" placeholder="Password" required/>
-                        </div>
-                        <div class="text-center mt-4">
-                            <button type="submit" class="btn btn-primary text-center" id="login-btn" style="background-color:#ff6537ff; border:none; min-width:390px;">Login</button>
-                        </div>
-                    </form>
+                            <div class="mb-5">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Password" required/>
+                            </div>
+                            <div class="text-center mt-4 mb-4">
+                                <button type="submit" class="btn btn-primary text-center" id="login-btn" style="background-color:#ff6537ff; border:none; min-width:410px;">Login</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
