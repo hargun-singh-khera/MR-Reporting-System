@@ -1,7 +1,11 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import Group
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.auth.models import Permission
 
 # Create your models here.
 class CountryMaster(models.Model):
@@ -30,18 +34,10 @@ class AreaMaster(models.Model):
     def __str__(self):
         return self.area
 
-class DesignationMaster(models.Model):
-    designation = models.CharField(max_length=100)
-    def __str__(self):
-        return self.designation
-
-# class EmployeeMaster(models.Model):
-    # name = models.CharField(max_length=100)
-    # area = models.ForeignKey(AreaMaster, on_delete = models.CASCADE)
-    # designation = models.ForeignKey(DesignationMaster, on_delete = models.CASCADE)
-    # date_of_birth = models.DateField()
-    # date_of_joining = models.DateField()
-    # mobile_number = models.CharField(max_length=10)
+# class DesignationMaster(models.Model):
+#     designation = models.CharField(max_length=100)
+#     def __str__(self):
+#         return self.designation
 
 class UnitMaster(models.Model):
     unit = models.CharField(max_length=20)
@@ -55,21 +51,11 @@ class ProductMaster(models.Model):
         return self.product
    
 class DoctorMaster(models.Model):
-    doctor_name = models.CharField(max_length=100)
+    doctor_name = models.CharField(max_length=100, unique=True)
     area = models.ForeignKey(AreaMaster, on_delete = models.CASCADE)
-    mobile_number = models.CharField(max_length=10)
-    approval_status = models.BooleanField(default=False)
+    mobile_number = models.CharField(max_length=10, unique=True)
     def __str__(self):
         return self.doctor_name
-
-class StockistMaster(models.Model):
-    stockist_name = models.CharField(max_length=100)
-    address = models.TextField()
-    area = models.ForeignKey(AreaMaster, on_delete = models.CASCADE)
-    mobile_number = models.CharField(max_length=10)
-    approval_status = models.BooleanField(default=False)
-    def __str__(self):
-        return self.stockist_name
 
 class GiftMaster(models.Model):
     gift_name = models.CharField(max_length=100)
@@ -96,16 +82,14 @@ class CustomUserManager(BaseUserManager):
         if other_fields.get('is_superuser') is not True:
             raise ValueError("Superuser must be assigned to is_staff=True.")
         return self.create_user(email, username, password, **other_fields)
-    
-    
 
 class UserMaster(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=255, blank=False)
     username = models.CharField(max_length=60, unique=True)
     email = models.EmailField(unique=True)
 
-    area = models.ForeignKey(AreaMaster, on_delete = models.CASCADE, null=True)
-    designation = models.ForeignKey(DesignationMaster, on_delete = models.CASCADE, null=True)
+    area = models.ForeignKey(AreaMaster, on_delete = models.CASCADE, null=True, blank=False)
+    designation = models.ForeignKey(Group, on_delete = models.CASCADE, null=True)
     date_of_birth = models.DateField(blank=False, null=True)
     date_of_joining = models.DateField(blank=False, null=True)
     last_login = models.DateTimeField(default=timezone.now)
@@ -122,3 +106,36 @@ class UserMaster(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.username
+    
+@receiver(post_save, sender=UserMaster)
+def grant_user_permissions(sender, instance, created, **kwargs):
+    if created:  # Only run this logic when a new user is created
+        user_group = instance.designation  # Retrieve the group associated with the user
+        if user_group:
+            permissions = Permission.objects.filter(group=user_group)  # Retrieve permissions associated with that group
+            instance.user_permissions.set(permissions)  # Assign permissions to the user
+
+
+class StockistMaster(models.Model):
+    stockist_name = models.CharField(max_length=100, unique=True)
+    address = models.TextField()
+    area = models.ForeignKey(AreaMaster, on_delete = models.CASCADE)
+    mobile_number = models.CharField(max_length=10, unique=True)
+
+    def __str__(self):
+        return self.stockist_name
+
+class AreaMapping(models.Model):
+    user = models.ForeignKey(UserMaster, on_delete=models.CASCADE)
+    areas = models.ManyToManyField(AreaMaster)
+    def __str__(self):
+        return str(self.user)
+    
+
+class RequestsMaster(models.Model):
+    request_by = models.ForeignKey(UserMaster, on_delete=models.CASCADE)
+    approval_status = models.BooleanField(default=False)
+
+    def has_add_permission(self, request):
+        # Disable the ability to add new objects
+        return False
