@@ -94,6 +94,7 @@ class UserMaster(AbstractBaseUser, PermissionsMixin):
     date_of_joining = models.DateField(blank=False, null=True)
     last_login = models.DateTimeField(default=timezone.now)
     mobile_number = models.CharField(max_length=10, unique=True)
+    under = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=False)
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=True)
@@ -125,7 +126,8 @@ class StockistMaster(models.Model):
     def __str__(self):
         return self.stockist_name
 
-class AreaMapping(models.Model):
+class UserAreaMapping(models.Model):
+    # pass
     user = models.ForeignKey(UserMaster, on_delete=models.CASCADE)
     areas = models.ManyToManyField(AreaMaster)
     def __str__(self):
@@ -139,3 +141,11 @@ class RequestsMaster(models.Model):
     def has_add_permission(self, request):
         # Disable the ability to add new objects
         return False
+    
+class TourProgram(models.Model):
+    # employee = models.ForeignKey(UserMaster, on_delete=models.CASCADE, blank=False, related_name='employee_tourprograms')
+    # under = models.ForeignKey(UserMaster, on_delete=models.CASCADE, blank=False, related_name='under_tourprograms')
+    # from_area = models.ForeignKey(AreaMaster, on_delete=models.CASCADE, blank=False, related_name='from_area')
+    # to_area = models.ForeignKey(AreaMaster, on_delete=models.CASCADE, blank=False, related_name='to_area')
+    # date_of_tour = models.DateField(null=False, blank=False)
+    pass

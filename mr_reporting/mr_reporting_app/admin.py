@@ -1,6 +1,5 @@
 from django.contrib import admin
 from mr_reporting_app.models import *
-from django import forms
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
@@ -10,6 +9,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.admin.widgets import FilteredSelectMultiple
+from .forms import *
 # Register your models here.
 
 class CountryMasterAdmin(admin.ModelAdmin):
@@ -23,11 +23,19 @@ class StateMasterAdmin(admin.ModelAdmin):
     autocomplete_fields = ['country']
 
 class CityMasterAdmin(admin.ModelAdmin):
+    form = CityForm
     search_fields = ['state']
-    list_display = ('city', 'state', 'country')
-    autocomplete_fields = ['country', 'state']
-    list_filter = ('country', 'city', 'state')
-    search_fields = ['city']
+    # list_display = ('city', 'state', 'country')
+    # autocomplete_fields = ['country', 'state']
+    # list_filter = ('country', 'city', 'state')
+    # search_fields = ['city']
+    class Media:
+        js = ('/static/js/dropdown_selection.js',)
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        # Add a CSS class to the country dropdown to identify it
+        form.base_fields['country'].widget.attrs['class'] = 'country-dropdown'
+        return form
     
     
 class AreaMasterAdmin(admin.ModelAdmin):
@@ -50,9 +58,9 @@ class UserMasterAdmin(admin.ModelAdmin):
     ordering = ('name',)
     search_fields = ('email', 'username', 'name',)
     list_filter = ('email', 'name', 'name', 'is_active', 'is_staff', 'is_superuser')
-    list_display = ('name', 'username', 'email', 'mobile_number', 'area', 'designation', 'date_of_birth', 'date_of_joining', 'is_superuser')
+    list_display = ('name', 'username', 'email', 'mobile_number', 'area', 'designation', 'under', 'date_of_birth', 'date_of_joining', 'is_superuser')
     fieldsets = (
-        ('User Creation Form', {'fields': ('email', 'username', 'name', 'mobile_number', 'area', 'designation', 'date_of_birth', 'date_of_joining', 'password', 'password1', 'password2')}),
+        ('User Creation Form', {'fields': ('email', 'username', 'name', 'mobile_number', 'area', 'designation', 'under', 'date_of_birth', 'date_of_joining', 'password', 'password1', 'password2')}),
         ('Permissions', {'fields': ('is_staff', 'is_active')})
     )
     
@@ -122,44 +130,20 @@ class StockisterMasterAdmin(admin.ModelAdmin):
 class GiftMasterAdmin(admin.ModelAdmin):
     list_display = ('gift_name',)
 
-class CustomAreaMapping(forms.ModelForm):
-    areas = forms.ModelMultipleChoiceField(
-        queryset=AreaMaster.objects.all(),
-        required=True,
-        widget=FilteredSelectMultiple(
-            verbose_name='Areas',
-            is_stacked=False
-        )
-    )
-
-    class Meta:
-        model = AreaMapping
-        fields = ['user', 'areas']
-
-    def __init__(self, *args, **kwargs):
-        super(CustomAreaMapping, self).__init__(*args, **kwargs)
-
-
-    def save(self, commit=True):
-        print("Save method called!")
-        instance = super().save(commit=False) 
-        print(f"Instance data before save: {instance}")
-        print(f"Selected areas: {self.cleaned_data['areas']}")
-        instance.save()  
-        selected_area = self.cleaned_data['areas'].first()
-        instance.areas.add(selected_area)
-        return instance
-
 
 class AreaMappingAdmin(admin.ModelAdmin):
     # pass
     title = ''
     form = CustomAreaMapping
-    list_display = ['user',]
+    # list_display = ['user', ]
     
 
 class RequestsMasterAdmin(admin.ModelAdmin):
     pass
+
+class TourProgramAdmin(admin.ModelAdmin):
+    form = TourProgramForm
+    # pass
 
 admin.site.register(CountryMaster, CountryMasterAdmin)
 admin.site.register(StateMaster, StateMasterAdmin)
@@ -172,5 +156,6 @@ admin.site.register(ProductMaster, ProductMasterAdmin)
 admin.site.register(DoctorMaster, DoctorMasterAdmin)
 admin.site.register(StockistMaster, StockisterMasterAdmin)
 admin.site.register(GiftMaster, GiftMasterAdmin)
-admin.site.register(AreaMapping, AreaMappingAdmin)
+admin.site.register(UserAreaMapping, AreaMappingAdmin)
 admin.site.register(RequestsMaster, RequestsMasterAdmin)
+admin.site.register(TourProgram, TourProgramAdmin)
