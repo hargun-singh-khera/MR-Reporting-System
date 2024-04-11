@@ -14,40 +14,23 @@ class CountryMaster(models.Model):
         return self.country
 
 class StateMaster(models.Model):
-    country = models.ForeignKey(CountryMaster, on_delete=models.CASCADE, null=True)
-    state = models.CharField(max_length=100, blank=True, null=True, unique=True)
+    country = models.ForeignKey(CountryMaster, on_delete=models.CASCADE, null=False)
+    state = models.CharField(max_length=100, blank=False, null=False, unique=True)
     def __str__(self):
         return self.state
 
 class CityMaster(models.Model):
-    state = models.ForeignKey(StateMaster, on_delete=models.CASCADE, null=True)
-    city = models.CharField(max_length=100, blank=True, null=True, unique=True)
+    country = models.ForeignKey(CountryMaster, on_delete=models.CASCADE, null=False)
+    state = models.ForeignKey(StateMaster, on_delete=models.CASCADE, null=False)
+    city = models.CharField(max_length=100, blank=False, null=False, unique=True)
     def __str__(self):
         return self.city
     
-# class CountryMaster(models.Model):
-#     country = models.CharField(max_length=100, unique=True)
-#     def __str__(self):
-#         return self.country
-
-# class StateMaster(models.Model):
-#     country = models.ForeignKey(CountryMaster, on_delete = models.CASCADE)
-#     state = models.CharField(max_length=100, unique=True)
-#     def __str__(self):
-#         return self.state
-
-# class CityMaster(models.Model):
-#     country = models.ForeignKey(CountryMaster, on_delete = models.CASCADE)
-#     state = models.ForeignKey(StateMaster, on_delete = models.CASCADE)
-#     city = models.CharField(max_length=100, unique=True)
-#     def __str__(self):
-#         return self.city
-
 class AreaMaster(models.Model):
-    # country = models.ForeignKey(CountryMaster, on_delete = models.CASCADE)
-    # state = models.ForeignKey(StateMaster, on_delete = models.CASCADE)
-    city = models.ForeignKey(CityMaster, on_delete = models.CASCADE)
-    area = models.CharField(max_length=100, unique=True)
+    country = models.ForeignKey(CountryMaster, on_delete=models.CASCADE, null=False)
+    state = models.ForeignKey(StateMaster, on_delete=models.CASCADE, null=False)
+    city = models.ForeignKey(CityMaster, on_delete=models.CASCADE, null=False)
+    area = models.CharField(max_length=100, blank=False, null=False, unique=True)
     def __str__(self):
         return self.area
 
@@ -57,7 +40,7 @@ class AreaMaster(models.Model):
 #         return self.designation
 
 class UnitMaster(models.Model):
-    unit = models.CharField(max_length=20)
+    unit = models.CharField(max_length=20, unique=True)
     def __str__(self):
         return self.unit
 
@@ -68,14 +51,14 @@ class ProductMaster(models.Model):
         return self.product
    
 class DoctorMaster(models.Model):
-    doctor_name = models.CharField(max_length=100, unique=True)
+    doctor_name = models.CharField(max_length=100)
     area = models.ForeignKey(CityMaster, on_delete = models.CASCADE)
     mobile_number = models.CharField(max_length=10, unique=True)
     def __str__(self):
         return self.doctor_name
 
 class GiftMaster(models.Model):
-    gift_name = models.CharField(max_length=100)
+    gift_name = models.CharField(max_length=100, unique=True)
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, username, password, **other_fields):
@@ -120,10 +103,10 @@ class UserMaster(AbstractBaseUser, PermissionsMixin):
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    REQUIRED_FIELDS = ['username', 'name']
 
     def __str__(self):
-        return self.username
+        return self.name
     
 @receiver(post_save, sender=UserMaster)
 def grant_user_permissions(sender, instance, created, **kwargs):

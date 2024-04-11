@@ -61,4 +61,9 @@ def report(request):
         getstate = StateMaster.objects.get(id=stateid)
         city = CityMaster.objects.filter(state=getstate)
     country = CountryMaster.objects.all()
-    return render(request, 'report.html', locals())
+    context = {
+        'country': country,
+        'state': state,
+        'city': city
+    }
+    return render(request, 'report.html', context)

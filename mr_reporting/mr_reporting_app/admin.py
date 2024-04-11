@@ -10,33 +10,49 @@ from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from .forms import *
+from .models import *
+from .views import *
 # Register your models here.
 
 class CountryMasterAdmin(admin.ModelAdmin):
     list_display = ('country',)
-    search_fields = ['country']
+    # search_fields = ['country']
 
 class StateMasterAdmin(admin.ModelAdmin):
     list_display = ('state', 'country')
     list_filter = ('state',)
-    search_fields = ['state']
-    autocomplete_fields = ['country']
+    # search_fields = ['state']
+    # autocomplete_fields = ['country']
 
 class CityMasterAdmin(admin.ModelAdmin):
-    # form = CityForm
-    search_fields = ['state']
-    list_display = ('city', 'state')
-    autocomplete_fields = ['state',]
+    form = CityForm
+    # search_fields = ['state']
+    list_display = ('city', 'state', 'country')
+    # autocomplete_fields = ['state', 'country']
     list_filter = ('city', 'state')
-    search_fields = ['city']
-    # class Media:
-        # js = ('/static/js/dropdown_selection.js',)
-    
-    
+    # search_fields = ['city']
+    fieldsets = (
+      (None, {
+          'fields': ('country', 'state', 'city'),
+      }),
+    )
+    class Media:
+        js = ('/static/js/dependent_dropdown.js',)
+
 class AreaMasterAdmin(admin.ModelAdmin):
+    form = AreaForm
     list_display = ('area', 'city')
-    autocomplete_fields = ['city']
-    search_fields = ['area']
+    # autocomplete_fields = ['city']
+    # search_fields = ['area']
+    fieldsets = (
+      (None, {
+          'fields': ('country', 'state', 'city', 'area'),
+      }),
+    )
+    class Media:
+        js = ('/static/js/dependent_dropdown.js',)
+
+
 
 # class DesignationMasterAdmin(admin.ModelAdmin):
 #     list_display = ('designation',)
@@ -135,15 +151,14 @@ class AreaMappingAdmin(admin.ModelAdmin):
 
 class RequestsMasterAdmin(admin.ModelAdmin):
     pass
-
+ 
 class TourProgramAdmin(admin.ModelAdmin):
     # pass
-    # form = TourProgramForm
+    form = TourProgramForm
     list_display = ('employee', 'date_of_tour', 'from_area', 'to_area')
-    # change_form_template = 'admin/tour_program.html'
     # pass
     class Media:
-        js = ('/static/js/dropdown_selection.js',)
+        js = ('/static/js/dependent_dropdown.js',)
 
 admin.site.register(CountryMaster, CountryMasterAdmin)
 admin.site.register(StateMaster, StateMasterAdmin)
