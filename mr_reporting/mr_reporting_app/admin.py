@@ -23,19 +23,14 @@ class StateMasterAdmin(admin.ModelAdmin):
     autocomplete_fields = ['country']
 
 class CityMasterAdmin(admin.ModelAdmin):
-    form = CityForm
+    # form = CityForm
     search_fields = ['state']
-    # list_display = ('city', 'state', 'country')
-    # autocomplete_fields = ['country', 'state']
-    # list_filter = ('country', 'city', 'state')
-    # search_fields = ['city']
-    class Media:
-        js = ('/static/js/dropdown_selection.js',)
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
-        # Add a CSS class to the country dropdown to identify it
-        form.base_fields['country'].widget.attrs['class'] = 'country-dropdown'
-        return form
+    list_display = ('city', 'state')
+    autocomplete_fields = ['state',]
+    list_filter = ('city', 'state')
+    search_fields = ['city']
+    # class Media:
+        # js = ('/static/js/dropdown_selection.js',)
     
     
 class AreaMasterAdmin(admin.ModelAdmin):
@@ -142,8 +137,13 @@ class RequestsMasterAdmin(admin.ModelAdmin):
     pass
 
 class TourProgramAdmin(admin.ModelAdmin):
-    form = TourProgramForm
     # pass
+    # form = TourProgramForm
+    list_display = ('employee', 'date_of_tour', 'from_area', 'to_area')
+    # change_form_template = 'admin/tour_program.html'
+    # pass
+    class Media:
+        js = ('/static/js/dropdown_selection.js',)
 
 admin.site.register(CountryMaster, CountryMasterAdmin)
 admin.site.register(StateMaster, StateMasterAdmin)

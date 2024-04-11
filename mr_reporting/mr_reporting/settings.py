@@ -68,6 +68,7 @@ TEMPLATES = [
     },
 ]
 
+
 AUTH_USER_MODEL = 'mr_reporting_app.UserMaster'
 
 WSGI_APPLICATION = 'mr_reporting.wsgi.application'
@@ -113,7 +114,7 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
+JQUERY_URL = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/

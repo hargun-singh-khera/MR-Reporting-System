@@ -9,28 +9,45 @@ from django.contrib.auth.models import Permission
 
 # Create your models here.
 class CountryMaster(models.Model):
-    country = models.CharField(max_length=100)
+    country = models.CharField(max_length=100, blank=True, null=True, unique=True)
     def __str__(self):
         return self.country
 
 class StateMaster(models.Model):
-    country = models.ForeignKey(CountryMaster, on_delete = models.CASCADE)
-    state = models.CharField(max_length=100)
+    country = models.ForeignKey(CountryMaster, on_delete=models.CASCADE, null=True)
+    state = models.CharField(max_length=100, blank=True, null=True, unique=True)
     def __str__(self):
         return self.state
 
 class CityMaster(models.Model):
-    country = models.ForeignKey(CountryMaster, on_delete = models.CASCADE)
-    state = models.ForeignKey(StateMaster, on_delete = models.CASCADE)
-    city = models.CharField(max_length=100)
+    state = models.ForeignKey(StateMaster, on_delete=models.CASCADE, null=True)
+    city = models.CharField(max_length=100, blank=True, null=True, unique=True)
     def __str__(self):
         return self.city
+    
+# class CountryMaster(models.Model):
+#     country = models.CharField(max_length=100, unique=True)
+#     def __str__(self):
+#         return self.country
+
+# class StateMaster(models.Model):
+#     country = models.ForeignKey(CountryMaster, on_delete = models.CASCADE)
+#     state = models.CharField(max_length=100, unique=True)
+#     def __str__(self):
+#         return self.state
+
+# class CityMaster(models.Model):
+#     country = models.ForeignKey(CountryMaster, on_delete = models.CASCADE)
+#     state = models.ForeignKey(StateMaster, on_delete = models.CASCADE)
+#     city = models.CharField(max_length=100, unique=True)
+#     def __str__(self):
+#         return self.city
 
 class AreaMaster(models.Model):
-    country = models.ForeignKey(CountryMaster, on_delete = models.CASCADE)
-    state = models.ForeignKey(StateMaster, on_delete = models.CASCADE)
+    # country = models.ForeignKey(CountryMaster, on_delete = models.CASCADE)
+    # state = models.ForeignKey(StateMaster, on_delete = models.CASCADE)
     city = models.ForeignKey(CityMaster, on_delete = models.CASCADE)
-    area = models.CharField(max_length=100)
+    area = models.CharField(max_length=100, unique=True)
     def __str__(self):
         return self.area
 
@@ -52,7 +69,7 @@ class ProductMaster(models.Model):
    
 class DoctorMaster(models.Model):
     doctor_name = models.CharField(max_length=100, unique=True)
-    area = models.ForeignKey(AreaMaster, on_delete = models.CASCADE)
+    area = models.ForeignKey(CityMaster, on_delete = models.CASCADE)
     mobile_number = models.CharField(max_length=10, unique=True)
     def __str__(self):
         return self.doctor_name
@@ -88,7 +105,7 @@ class UserMaster(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=60, unique=True)
     email = models.EmailField(unique=True)
 
-    area = models.ForeignKey(AreaMaster, on_delete = models.CASCADE, null=True, blank=False)
+    area = models.ForeignKey(CityMaster, on_delete = models.CASCADE, null=True, blank=False)
     designation = models.ForeignKey(Group, on_delete = models.CASCADE, null=True)
     date_of_birth = models.DateField(blank=False, null=True)
     date_of_joining = models.DateField(blank=False, null=True)
@@ -120,7 +137,7 @@ def grant_user_permissions(sender, instance, created, **kwargs):
 class StockistMaster(models.Model):
     stockist_name = models.CharField(max_length=100, unique=True)
     address = models.TextField()
-    area = models.ForeignKey(AreaMaster, on_delete = models.CASCADE)
+    area = models.ForeignKey(CityMaster, on_delete = models.CASCADE)
     mobile_number = models.CharField(max_length=10, unique=True)
 
     def __str__(self):
@@ -129,7 +146,7 @@ class StockistMaster(models.Model):
 class UserAreaMapping(models.Model):
     # pass
     user = models.ForeignKey(UserMaster, on_delete=models.CASCADE)
-    areas = models.ManyToManyField(AreaMaster)
+    areas = models.ManyToManyField(CityMaster)
     def __str__(self):
         return str(self.user)
     
@@ -143,9 +160,8 @@ class RequestsMaster(models.Model):
         return False
     
 class TourProgram(models.Model):
-    # employee = models.ForeignKey(UserMaster, on_delete=models.CASCADE, blank=False, related_name='employee_tourprograms')
-    # under = models.ForeignKey(UserMaster, on_delete=models.CASCADE, blank=False, related_name='under_tourprograms')
-    # from_area = models.ForeignKey(AreaMaster, on_delete=models.CASCADE, blank=False, related_name='from_area')
-    # to_area = models.ForeignKey(AreaMaster, on_delete=models.CASCADE, blank=False, related_name='to_area')
-    # date_of_tour = models.DateField(null=False, blank=False)
-    pass
+    employee = models.ForeignKey(UserMaster, on_delete=models.CASCADE, blank=False, related_name='employee_tourprograms')
+    date_of_tour = models.DateField(null=False, blank=False)
+    from_area = models.ForeignKey(CityMaster, on_delete=models.CASCADE, blank=False, related_name='from_area')
+    to_area = models.ForeignKey(CityMaster, on_delete=models.CASCADE, blank=False, related_name='to_area')
+ 

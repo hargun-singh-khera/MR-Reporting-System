@@ -7,11 +7,11 @@ class CustomAreaMapping(forms.ModelForm):
         queryset=UserMaster.objects.filter(is_superuser=False)
     )
     areas = forms.ModelMultipleChoiceField(
-        queryset=AreaMaster.objects.all(),
+        queryset=CityMaster.objects.all(),
         required=True,
         widget=FilteredSelectMultiple(
             verbose_name='Areas',
-            is_stacked=False
+            is_stacked=False,
         )
     )
 
@@ -22,6 +22,7 @@ class CustomAreaMapping(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(CustomAreaMapping, self).__init__(*args, **kwargs)
+        self.fields['areas'].label = 'Areas'
 
 
     def save(self, commit=True):
@@ -37,20 +38,23 @@ class CustomAreaMapping(forms.ModelForm):
 
 
 class TourProgramForm(forms.ModelForm):
-    # pass
+    pass
     employee = forms.ModelChoiceField(
         queryset=UserMaster.objects.filter(is_superuser=False),
-        widget=forms.Select(attrs={'style': 'width: 200px;'})
+        # queryset=UserMaster.objects.all(),
+        # widget=forms.MultipleChoiceField(attrs={'style': 'width: 200px;'})
     )
-    from_area = forms.ModelChoiceField(
-        # queryset=UserAreaMapping.objects.none(),
-        queryset=UserAreaMapping.objects.none(),
-        required=False,
-        widget=forms.Select(attrs={'style': 'width: 200px;'})
-    )
+    # from_area = forms.ModelChoiceField(
+    #     # queryset=UserAreaMapping.objects.none(),
+    #     queryset=AreaMaster.objects.all(),
+    #     required=True,
+    #     # widget=forms.Select(attrs={'style': 'width: 200px;'})
+        
+    # )
     # to_area = forms.ModelChoiceField(
-    #     queryset=UserAreaMapping.objects.all(),
-    #     widget=forms.Select(attrs={'style': 'width: 200px;'})
+    #     queryset=AreaMaster.objects.all(),
+    #     required=True,
+    #     # widget=forms.Select(attrs={'style': 'width: 200px;'})
     # )
 
 class CityForm(forms.ModelForm):
@@ -62,7 +66,11 @@ class CityForm(forms.ModelForm):
     state = forms.ModelChoiceField(
         queryset=StateMaster.objects.all(),
         widget=forms.Select(attrs={'style': 'width: 200px;'}),
-        required=False
+        required=True
     )
     city = forms.CharField(max_length=100, required=False)
-
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'country' in self.initial:
+            country_id = self.initial['country']
+            self.fields['state'].queryset = StateMaster.objects.filter(country_id=country_id)

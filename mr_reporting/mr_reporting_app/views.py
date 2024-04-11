@@ -4,6 +4,7 @@ from django.contrib import messages
 from .models import UserMaster
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from .models import *
 
 
 # Create your views here.
@@ -47,4 +48,17 @@ def daily_report_form(request):
 def areamaster_add(request):
     return HttpResponse("Area Master")
 
-
+@login_required(login_url="/login")
+def report(request):
+    countryid = request.GET.get('country', None)
+    stateid = request.GET.get('state', None)
+    state = None
+    city = None
+    if countryid:
+        getcountry = CountryMaster.objects.get(id=countryid)
+        state = StateMaster.objects.filter(country=getcountry)
+    if stateid:
+        getstate = StateMaster.objects.get(id=stateid)
+        city = CityMaster.objects.filter(state=getstate)
+    country = CountryMaster.objects.all()
+    return render(request, 'report.html', locals())

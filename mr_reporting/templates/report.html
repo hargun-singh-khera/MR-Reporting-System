@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% include 'header.html' %}
+{% block body %}
+<div class="container mt-5" style="width:40%">
+    <label for="country">Country</label>
+    <select class="form-select" aria-label="Default select example" id="country" onchange="countryfield()">
+        <option selected>Choose Country</option>
+        {% for i in country %}
+            <option value="{{i.id}}" {% if request.GET.country == i.id|lower %}selected{% endif %}>{{i.country}}</option>
+        {% endfor %}
+    </select>
+    <br/>
+    <label for="state">State</label>
+    <select class="form-select" aria-label="Default select example" id="state" onchange="statefield()">
+        <option selected>Choose State</option>
+        {% for i in state %}
+            <option value="{{i.id}}" {% if request.GET.state == i.id|lower %}selected{% endif %}>{{i.state}}</option>
+        {% endfor %}
+    </select>
+<br/>
+    <label for="city">District</label>
+    <select class="form-select" aria-label="Default select example" id="city">
+        <option selected>Choose District</option>
+        {% for i in city %}
+            <option value="{{i.id}}">{{i.city}}</option>
+        {% endfor %}
+    </select>
+    <br/>
+</div>
+<script>
+    function countryfield(){
+        countryid = document.getElementById('country').value;
+        window.location = "/report/?country="+countryid;
+    }
+    function statefield(){
+       stateid = document.getElementById('state').value;
+       window.location = "/report/?country="+'{{request.GET.country}}'+"&state="+stateid;
+    }
+</script>
+{% endblock %}

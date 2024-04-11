@@ -1,0 +1,69 @@
+<!-- custom_change_form.html -->
+{% extends "admin/change_form.html" %}
+
+{% block content %}
+    <!-- Custom content goes here -->
+    <h1>This is a custom change form for YourModel</h1>
+    <form method="POST" action="">
+        {% csrf_token %}
+        
+        <!-- Employee dropdown -->
+        <div>
+            <label for="employee">Employee:</label>
+            <select name="employee" id="employee">
+                <option value="1">Employee 1</option>
+                <option value="2">Employee 2</option>
+                <!-- Add more options as needed -->
+            </select>
+        </div>
+        
+        <!-- From area dropdown -->
+        <div style="margin-top: 10px;">
+            <label for="from_area">From Area:</label>
+            <select name="from_area" id="from_area">
+                <option value="1">Area 1</option>
+                <option value="2">Area 2</option>
+                <!-- Add more options as needed -->
+            </select>
+        </div>
+        
+        <!-- To area dropdown -->
+        <div style="margin-top: 10px;">
+            <label for="to_area">To Area:</label>
+            <select name="to_area" id="to_area">
+                <option value="1">Area 1</option>
+                <option value="2">Area 2</option>
+                <!-- Add more options as needed -->
+            </select>
+        </div>
+    </form>
+    {{ block.super }}
+
+    <script>
+        // JavaScript to get the selected ID from dropdowns
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the dropdown elements
+            var employeeDropdown = document.getElementById('employee');
+            var fromAreaDropdown = document.getElementById('from_area');
+            var toAreaDropdown = document.getElementById('to_area');
+
+            // Add event listeners to each dropdown
+            employeeDropdown.addEventListener('change', function() {
+                var selectedEmployeeId = this.value;
+                console.log('Selected Employee ID:', selectedEmployeeId);
+            });
+
+            fromAreaDropdown.addEventListener('change', function() {
+                var selectedFromAreaId = this.value;
+                console.log('Selected From Area ID:', selectedFromAreaId);
+            });
+
+            toAreaDropdown.addEventListener('change', function() {
+                var selectedToAreaId = this.value;
+                console.log('Selected To Area ID:', selectedToAreaId);
+            });
+        });
+    </script>
+
+
+{% endblock %}
