@@ -38,15 +38,41 @@ def logout_page(request):
 @login_required(login_url="/login")
 def redirect_url(request):
     # pass
-    return render(request, 'detail_report_form.html')
+    return render(request, 'daily_report_form.html')
 
-@login_required(login_url="/login")
-def daily_report_form(request):
-    return render(request, 'detail_report_form.html')
 
 @login_required(login_url="/login")
 def areamaster_add(request):
     return HttpResponse("Area Master")
+
+
+@login_required(login_url="/login")
+def daily_report_form(request):
+    employees = UserMaster.objects.filter(is_superuser=False)
+    context = {
+        'employees': employees,
+    }
+    return render(request, 'daily_report_form.html', context)
+
+
+@login_required(login_url="/login")
+def daily_report_form_detail(request):
+    employees = UserMaster.objects.filter(is_superuser=False)
+    employee_id = request.GET.get('employee', None)
+    employee_designation = None
+    tour_program = None
+    if employee_id and employee_id.isdigit():
+        employee_designation = UserMaster.objects.get(id=employee_id)
+        # employee_id = employee_id-1
+        tour_program = TourProgram.objects.get(id=employee_id)
+    context = {
+        'employees': employees,
+        'employee_designation': employee_designation,
+        'tour_program': tour_program,
+    }
+    return render(request, 'daily_report_form_detail.html', context)
+
+
 
 @login_required(login_url="/login")
 def report(request):

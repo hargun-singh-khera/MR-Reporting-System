@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block body %}
+{% include 'header.html' %}
+<div class="container-fluid">
+    <div class="shadow-lg col-md-10 p-4 m-5 bg-body-tertiary rounded mx-auto">
+      <form>
+        <div class="mb-3 row align-items-center">
+          <label for="employeeName" class="form-label col-md-3">Employee Name</label>
+          <div class="col-md-9">
+            <select id="employeeName" class="form-select" aria-label="Employee Name">
+              <option selected>Open this select menu</option>
+              
+              {% for employee in employees %}
+                <option value="{{employee.id}}"> {{ employee.name}} </option>
+              {% endfor %}
+                
+            </select>
+          </div>
+        </div>
+        <div class="mb-3 row align-items-center">
+          <label for="month" class="form-label col-md-3">Month</label>
+          <div class="col-md-9">
+            <select id="month" class="form-select" aria-label="Month">
+              <option selected>Open this select menu</option>
+              <option value="1">One</option>
+              <option value="2">Two</option>
+              <option value="3">Three</option>
+            </select>
+          </div>
+        </div>
+      </form>
+      <hr />
+
+      <form action="">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">S.No</th>
+              <th scope="col">Date</th>
+              <th scope="col">From</th>
+              <th scope="col">To</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">1</th>
+              <td>Mark</td>
+              <td>Otto</td>
+              <td>@mdo</td>
+              <td><button type="button" class="btn btn-danger w-100 disabled">Submitted</button></td>
+
+            </tr>
+            <tr>
+              <th scope="row">2</th>
+              <td>Mark</td>
+              <td>Otto</td>
+              <td>@mdo</td>
+              <td><button type="button" class="btn btn-success w-100">Fill</button></td>
+            </tr>
+            <tr>
+              <th scope="row">3</th>
+              <td>Mark</td>
+              <td>Otto</td>
+              <td>@mdo</td>
+              <td><button type="button" class="btn btn-success w-100">Fill</button></td>
+              
+            </tr>
+          </tbody>
+        </table>
+      </form>
+    </div>
+  </div>
+{% endblock body %}
+
