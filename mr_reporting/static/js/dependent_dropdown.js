@@ -11,13 +11,14 @@ function countryfield() {
 }
 
 function statefield() {
+    console.log("State changed")
     var stateDropdown = document.getElementById('id_state');
     if (stateDropdown) {
         var countryId = document.getElementById('id_country').value;
         var stateId = stateDropdown.value;
         window.location = getCurrentUrl() + "?country=" + countryId + "&state=" + stateId;
     }
-}
+} 
 
 function employeefield() {
     var employeeDropdown = document.getElementById('id_employee');
@@ -27,22 +28,12 @@ function employeefield() {
     }
 }
 
-function areafield() {
-    var areaDropdown = document.getElementById('id_area_from');
-    if (areaDropdown) {
-        var employee = document.getElementById('id_employee').value;
-        var areaId = areaDropdown.value;
-        window.location = getCurrentUrl() + "?country=" + countryId + "&area=" + areaId;
-    }
-}
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("Javascript loaded");
-
+    console.log("DOM Loaded");
     var countryDropdown = document.getElementById('id_country');
     var stateDropdown = document.getElementById('id_state');
     var employeeDropdown = document.getElementById('id_employee');
-    var areaDropdown = document.getElementById('id_area');
 
     if (countryDropdown) {
         countryDropdown.addEventListener('change', countryfield);
@@ -52,11 +43,8 @@ document.addEventListener('DOMContentLoaded', function() {
         stateDropdown.addEventListener('change', statefield);
     }
 
-    if(employeeDropdown) {
+    if (employeeDropdown) {
         employeeDropdown.addEventListener('change', employeefield);
     }
     
-    if(areaDropdown) {
-        areaDropdown.addEventListener('change', areafield);
-    }
 });

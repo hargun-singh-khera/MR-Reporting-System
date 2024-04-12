@@ -153,13 +153,12 @@ class RequestsMasterAdmin(admin.ModelAdmin):
     pass
  
 class TourProgramAdmin(admin.ModelAdmin):
-    # pass
     form = TourProgramForm
     list_display = ('employee', 'date_of_tour', 'from_area', 'to_area')
-    # pass
     class Media:
         js = ('/static/js/dependent_dropdown.js',)
-
+        
+        
 admin.site.register(CountryMaster, CountryMasterAdmin)
 admin.site.register(StateMaster, StateMasterAdmin)
 admin.site.register(CityMaster, CityMasterAdmin)

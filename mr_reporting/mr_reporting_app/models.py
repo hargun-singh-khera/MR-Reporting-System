@@ -126,13 +126,14 @@ class StockistMaster(models.Model):
     def __str__(self):
         return self.stockist_name
 
+
 class UserAreaMapping(models.Model):
     # pass
     user = models.ForeignKey(UserMaster, on_delete=models.CASCADE)
-    areas = models.ManyToManyField(CityMaster)
+    areas = models.ManyToManyField(AreaMaster)
     def __str__(self):
         return str(self.user)
-    
+
 
 class RequestsMaster(models.Model):
     request_by = models.ForeignKey(UserMaster, on_delete=models.CASCADE)
@@ -145,6 +146,6 @@ class RequestsMaster(models.Model):
 class TourProgram(models.Model):
     employee = models.ForeignKey(UserMaster, on_delete=models.CASCADE, blank=False, related_name='employee_tourprograms')
     date_of_tour = models.DateField(null=False, blank=False)
-    from_area = models.ForeignKey(CityMaster, on_delete=models.CASCADE, blank=False, related_name='from_area')
-    to_area = models.ForeignKey(CityMaster, on_delete=models.CASCADE, blank=False, related_name='to_area')
+    from_area = models.ForeignKey(AreaMaster, on_delete=models.CASCADE, blank=False, related_name='from_area')
+    to_area = models.ForeignKey(AreaMaster, on_delete=models.CASCADE, blank=False, related_name='to_area')
  
