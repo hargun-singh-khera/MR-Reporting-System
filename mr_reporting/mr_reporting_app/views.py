@@ -6,6 +6,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .models import *
 from datetime import datetime
+from django.db import transaction
+
+
 
 # Create your views here.
 def login_page(request):
@@ -90,7 +93,7 @@ def daily_report_form_detail(request):
     employee_designation = None
     tour_program = None
     employee_designation = UserMaster.objects.get(id=employee_id)
-    tour_program = TourProgram.objects.get(id=employee_id)
+    tour_program = TourProgram.objects.filter(employee_id=employee_id)
     doctors = None
     stockists = None
     gifts = GiftMaster.objects.all()
@@ -104,6 +107,11 @@ def daily_report_form_detail(request):
         stockists = StockistMaster.objects.filter(area_id=destination_area_id)
 
     if request.method == "POST":
+        employee_name = request.POST.get('employee_name')
+        emp_designation = request.POST.get('employee_designation')
+        date_of_working = request.POST.get('date_of_working')
+        emp_source_area = request.POST.get('source_area')
+        emp_destination_area = request.POST.get('destination_area')
         doctor_name = request.POST.get('doctor')
         doctor_departure_time = request.POST.get('doctor_departure_time')
         doctor_arrival_time = request.POST.get('doctor_arrival_time')
@@ -116,15 +124,58 @@ def daily_report_form_detail(request):
         stockist = request.POST.get('stockist')
         stockist_departure_time = request.POST.get('stockist_departure_time')
         stockist_arrival_time = request.POST.get('stockist_arrival_time')
+
+        employee_id = UserMaster.objects.get(name=employee_name)
+        source_area_id = AreaMaster.objects.get(area=emp_source_area)
+        destination_area_id = AreaMaster.objects.get(area=emp_destination_area)
+    
+        doctor_id = DoctorMaster.objects.get(id=int(doctor_name))
+
+        product_id = ProductMaster.objects.get(id=int(product_name))
+        product_unit_id = UnitMaster.objects.get(id=int(product_unit))
+        gift_id = GiftMaster.objects.get(id=int(gift))
+        gift_unit_id = UnitMaster.objects.get(id=int(gift_unit))
+        stockist_id = StockistMaster.objects.get(id=int(stockist))
+       
+        print("Doctor Name:",  doctor_name)
+        print("Doctor Id:", doctor_id, "Product Id:", product_id, "Product Unit Id:", product_unit_id, "Gift Id:", gift_id, 
+              "Gift Unit Id:", gift_unit_id, "Stockist Id:", stockist_id)
+
+        # data = DailyReporting(
+        #     employee=employee_id,
+        #     designation=emp_designation,
+        #     date_of_working=date_of_working,
+        #     source_area=source_area_id,
+        #     destination_area=destination_area_id,
+        #     doctor=doctor_id,
+        #     doctor_time_in=doctor_arrival_time, 
+        #     doctor_time_out=doctor_departure_time, 
+        #     product=product_id,
+        #     product_unit_id=product_unit,
+        #     product_quantity=product_qty,
+        #     gift=gift_id, 
+        #     gift_unit_id=gift_unit,
+        #     gift_quantity=gift_qty,
+        #     stockist=stockist_id, 
+        #     stockist_time_in=stockist_arrival_time, 
+        #     stockist_time_out=stockist_departure_time
+        # )
+        # data.save()
+
+
         print("POST executed")
 
+        print("Employee Name:", employee_name, "Employee Designation:", emp_designation, "Date of Working:", date_of_working, 
+              "Employee Source Area:", emp_source_area, "Employee Destination Area:", emp_destination_area)
         print("Doctor name:", doctor_name, "Arrival Time:", doctor_arrival_time, "Departure Time:", doctor_departure_time)
         print("Product Name:", product_name, "Product Unit:", product_unit, "Product Qty:", product_qty)
         print("Gift Name:", gift, "Gift Unit:", gift_unit, "Gift Qty:", gift_qty)
         print("Stockist Name:", stockist, "Arrival Time:", stockist_arrival_time, "Departure Time:", stockist_departure_time)
-        
+        return redirect('daily_report_form')
+    
     context = {
         'employees': employees,
+        'employee_id': employee_id,
         'employee_designation': employee_designation,
         'tour_program': tour_program,
         'date': date,

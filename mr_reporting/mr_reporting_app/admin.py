@@ -157,6 +157,11 @@ class TourProgramAdmin(admin.ModelAdmin):
     list_display = ('employee', 'date_of_tour', 'from_area', 'to_area')
     class Media:
         js = ('/static/js/dependent_dropdown.js',)
+
+class DailyReportingAdmin(admin.ModelAdmin):
+    list_display = ('employee', 'designation', 'date_of_working', 'source_area', 'destination_area', 'doctor', 'doctor_time_in', 
+                    'doctor_time_out', 'product', 'product_unit_id', 'product_quantity', 'gift', 'gift_unit_id', 'gift_quantity', 
+                    'stockist', 'stockist_time_in', 'stockist_time_out')
         
         
 admin.site.register(CountryMaster, CountryMasterAdmin)
@@ -173,3 +178,4 @@ admin.site.register(GiftMaster, GiftMasterAdmin)
 admin.site.register(UserAreaMapping, AreaMappingAdmin)
 admin.site.register(RequestsMaster, RequestsMasterAdmin)
 admin.site.register(TourProgram, TourProgramAdmin)
+admin.site.register(DailyReporting, DailyReportingAdmin)

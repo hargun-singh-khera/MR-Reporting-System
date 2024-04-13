@@ -122,8 +122,8 @@ class TourProgramForm(forms.ModelForm):
                 # Assuming CountryMaster has a field with unique values like name
                 user_instance = UserMaster.objects.get(id=employee_id)  # Adjust field name
                 user_id = user_instance.id
-                user = UserAreaMapping.objects.get(id=user_id-1)
-                areas_related = user.areas.all()
+                user_instance_mapping = UserAreaMapping.objects.get(user_id=user_id)
+                areas_related = user_instance_mapping.areas.all()
                 self.fields['from_area'].queryset = areas_related
                 self.fields['to_area'].queryset = areas_related
             except CountryMaster.DoesNotExist:

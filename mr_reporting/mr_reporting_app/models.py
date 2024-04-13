@@ -59,6 +59,8 @@ class DoctorMaster(models.Model):
 
 class GiftMaster(models.Model):
     gift_name = models.CharField(max_length=100, unique=True)
+    def __str__(self):
+        return self.gift_name
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, username, password, **other_fields):
@@ -88,7 +90,7 @@ class UserMaster(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=60, unique=True)
     email = models.EmailField(unique=True)
 
-    area = models.ForeignKey(CityMaster, on_delete = models.CASCADE, null=True, blank=False)
+    area = models.ForeignKey(AreaMaster, on_delete = models.CASCADE, null=True, blank=False)
     designation = models.ForeignKey(Group, on_delete = models.CASCADE, null=True)
     date_of_birth = models.DateField(blank=False, null=True)
     date_of_joining = models.DateField(blank=False, null=True)
@@ -149,4 +151,23 @@ class TourProgram(models.Model):
     from_area = models.ForeignKey(AreaMaster, on_delete=models.CASCADE, blank=False, related_name='from_area')
     to_area = models.ForeignKey(AreaMaster, on_delete=models.CASCADE, blank=False, related_name='to_area')
     
-    
+
+class DailyReporting(models.Model):
+    employee = models.ForeignKey(UserMaster, on_delete=models.CASCADE)
+    designation = models.CharField(max_length=100)
+    date_of_working = models.CharField(max_length=20)
+    source_area = models.ForeignKey(AreaMaster, on_delete=models.CASCADE, related_name='source_area')
+    destination_area = models.ForeignKey(AreaMaster, on_delete=models.CASCADE, related_name='destination_area')
+    doctor = models.ForeignKey(DoctorMaster, on_delete=models.CASCADE)
+    doctor_time_in = models.CharField(max_length=10)
+    doctor_time_out = models.CharField(max_length=10)
+    product = models.ForeignKey(ProductMaster, on_delete=models.CASCADE)
+    product_unit = models.ForeignKey(UnitMaster, on_delete=models.CASCADE, related_name='product_unit_id')
+    product_quantity = models.CharField(max_length=10)
+    gift = models.ForeignKey(GiftMaster, on_delete=models.CASCADE)
+    gift_unit = models.ForeignKey(UnitMaster, on_delete=models.CASCADE, related_name='gift_unit_id')
+    gift_quantity = models.CharField(max_length=10)
+    stockist = models.ForeignKey(StockistMaster, on_delete=models.CASCADE)
+    stockist_time_in = models.CharField(max_length=10)
+    stockist_time_out = models.CharField(max_length=10)
+
