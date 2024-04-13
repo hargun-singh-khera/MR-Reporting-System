@@ -3,74 +3,89 @@
 {% block body %}
 {% include 'header.html' %}
 <div class="container-fluid">
-    <div class="shadow-lg col-md-10 p-4 m-5 bg-body-tertiary rounded mx-auto">
-      <form>
-        <div class="mb-3 row align-items-center">
-          <label for="employeeName" class="form-label col-md-3">Employee Name</label>
-          <div class="col-md-9">
-            <select id="employeeName" class="form-select" aria-label="Employee Name">
-              <option selected>Open this select menu</option>
+    <div class="shadow-lg col-md-11 p-4 m-5 bg-body-tertiary rounded mx-auto">
+      <div class="mb-3 row align-items-center">
+        <label for="employeeName" class="form-label col-md-3">Employee Name</label>
+        <div class="col-md-9">
+          <select id="employee" class="form-select" aria-label="Employee Name" onchange="employeefield()">
+            <option selected>Open this select menu</option>
+            {% for employee in employees %}
+            <option value="{{employee.id}}" {% if request.GET.employee == employee.id|lower %}selected{% endif %}>{{employee.name}}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="mb-3 row align-items-center">
+        <label for="month" class="form-label col-md-3">Month</label>
+        <div class="col-md-9">
+          <select id="month" class="form-select" aria-label="Month" onchange="monthfield()">
+            <option selected>Open this select menu</option>
+            {% for month in months %}
+            <option value="{{month}}" {% if request.GET.month == month %}selected{% endif %}>{{month}}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    <br/>
+      
+      <form action="">
+        
+        {% if showTable %}
+          <hr />
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">S.No</th>
+                <th scope="col">Date</th>
+                <th scope="col">From</th>
+                <th scope="col">To</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- <tr>
+                <th scope="row">1</th>
+                <td>Mark</td>
+                <td>Otto</td>
+                <td>@mdo</td>
+                <td><button type="button" class="btn btn-danger w-100 disabled">Submitted</button></td>
+
+              </tr> -->
               
-              {% for employee in employees %}
-                <option value="{{employee.id}}"> {{ employee.name}} </option>
+              {% for tour_prgm in tour_program %}
+                <tr>  
+                  <th scope="row">{{forloop.counter}}</th>
+                  <td>{{tour_prgm.date_of_tour}}</td>
+                  <td>{{tour_prgm.from_area}}</td>
+                  <td>{{tour_prgm.to_area}}</td>
+                  <td>
+                    <a href="{% url 'daily_report_form_detail' %}?employee={{employee_id}}" class="btn btn-success w-100">Fill</a>
+                  </td>
+                <tr>
               {% endfor %}
                 
-            </select>
-          </div>
-        </div>
-        <div class="mb-3 row align-items-center">
-          <label for="month" class="form-label col-md-3">Month</label>
-          <div class="col-md-9">
-            <select id="month" class="form-select" aria-label="Month">
-              <option selected>Open this select menu</option>
-              <option value="1">One</option>
-              <option value="2">Two</option>
-              <option value="3">Three</option>
-            </select>
-          </div>
-        </div>
-      </form>
-      <hr />
+              </tr>
+            </tbody>
+          </table>
 
-      <form action="">
-        <table class="table">
-          <thead>
-            <tr>
-              <th scope="col">S.No</th>
-              <th scope="col">Date</th>
-              <th scope="col">From</th>
-              <th scope="col">To</th>
-              <th scope="col">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th scope="row">1</th>
-              <td>Mark</td>
-              <td>Otto</td>
-              <td>@mdo</td>
-              <td><button type="button" class="btn btn-danger w-100 disabled">Submitted</button></td>
-
-            </tr>
-            <tr>
-              <th scope="row">2</th>
-              <td>Mark</td>
-              <td>Otto</td>
-              <td>@mdo</td>
-              <td><button type="button" class="btn btn-success w-100">Fill</button></td>
-            </tr>
-            <tr>
-              <th scope="row">3</th>
-              <td>Mark</td>
-              <td>Otto</td>
-              <td>@mdo</td>
-              <td><button type="button" class="btn btn-success w-100">Fill</button></td>
-              
-            </tr>
-          </tbody>
-        </table>
+        {% endif %}
+          
       </form>
     </div>
   </div>
+  <script>
+    function getCurrentUrl() {
+        return window.location.origin + window.location.pathname;
+    }
+    function employeefield() {
+        var employeeId = document.getElementById('employee').value;
+        window.location = getCurrentUrl() + "?employee=" + employeeId;
+    }
+    function monthfield(){
+       monthid = document.getElementById('month').value;
+       console.log("Month id: " + monthid);
+       window.location = getCurrentUrl() +"?employee="+'{{request.GET.employee}}'+"&month="+monthid;
+    }
+  </script>
 {% endblock body %}
 

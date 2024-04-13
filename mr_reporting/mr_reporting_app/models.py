@@ -148,4 +148,5 @@ class TourProgram(models.Model):
     date_of_tour = models.DateField(null=False, blank=False)
     from_area = models.ForeignKey(AreaMaster, on_delete=models.CASCADE, blank=False, related_name='from_area')
     to_area = models.ForeignKey(AreaMaster, on_delete=models.CASCADE, blank=False, related_name='to_area')
- 
+    
+    

@@ -5,7 +5,7 @@ from .models import UserMaster
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .models import *
-
+from datetime import datetime
 
 # Create your views here.
 def login_page(request):
@@ -38,7 +38,7 @@ def logout_page(request):
 @login_required(login_url="/login")
 def redirect_url(request):
     # pass
-    return render(request, 'daily_report_form.html')
+    return redirect('/form')
 
 
 @login_required(login_url="/login")
@@ -49,8 +49,34 @@ def areamaster_add(request):
 @login_required(login_url="/login")
 def daily_report_form(request):
     employees = UserMaster.objects.filter(is_superuser=False)
+    employee_id = request.GET.get('employee', None)
+    month_name = request.GET.get('month', None)
+    print("Month ID: ", month_name)
+    months = None
+    employee_selected = False
+    month_selected = False
+    showTable = False
+    tour_program = None
+    if employee_id and employee_id.isdigit():
+        tour_program = TourProgram.objects.filter(employee_id=employee_id)
+        months = set(program.date_of_tour.strftime('%B') for program in tour_program)
+        employee_selected = True
+        print(months)
+        
+    if month_name:
+        selected_month = datetime.strptime(month_name, '%B').month
+        tour_program = tour_program.filter(date_of_tour__month=selected_month)
+        month_selected = True
+        print("Month: " + month_name)
+    if employee_selected and month_selected:
+        showTable = True
+
     context = {
         'employees': employees,
+        'employee_id': employee_id,
+        'tour_program': tour_program,
+        'months': months,
+        'showTable': showTable,
     }
     return render(request, 'daily_report_form.html', context)
 
@@ -63,7 +89,6 @@ def daily_report_form_detail(request):
     tour_program = None
     if employee_id and employee_id.isdigit():
         employee_designation = UserMaster.objects.get(id=employee_id)
-        # employee_id = employee_id-1
         tour_program = TourProgram.objects.get(id=employee_id)
     context = {
         'employees': employees,
