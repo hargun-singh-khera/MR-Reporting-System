@@ -5,41 +5,35 @@
 
 <div class="container-fluid">
     <div class="shadow-lg col-md-10 p-4 m-5 bg-body-tertiary rounded mx-auto">
-      <form>
-        <div class="mb-3 row align-items-center">
-          <label for="employeeName" class="form-label col-md-3">Employee Name</label>
-          <div class="col-md-9">
-            <select id="employee" class="form-select" aria-label="Employee Name" onchange="employeefield()">
-              <option selected>Open this select menu</option>
-              {% for employee in employees %}
-              <option value="{{employee.id}}" {% if request.GET.employee == employee.id|lower %}selected{% endif %}>{{employee.name}}</option>
-              {% endfor %}
-            </select>
-          </div>
+      <div class="mb-3 row align-items-center">
+        <label for="employeeName" class="form-label col-md-3">Employee Name</label>
+        <div class="col-md-9">
+          <input class="form-control" id="disabledInput" type="text" value="{{employee_designation.name}}" disabled>
         </div>
-        <div class="mb-3 row align-items-center">
-          <label for="employeeName" class="form-label col-md-3">Designation</label>
-          <div class="col-md-9">
-              <input class="form-control" id="disabledInput" type="text" value="{{employee_designation.designation}}" disabled>
-          </div>
+      </div>
+      <div class="mb-3 row align-items-center">
+        <label for="employeeName" class="form-label col-md-3">Designation</label>
+        <div class="col-md-9">
+            <input class="form-control" id="disabledInput" type="text" value="{{employee_designation.designation}}" disabled>
         </div>
-        <div class="mb-3 row align-items-center">
-          <div class="col-md-4">
-              <label for="month" class="form-label">Date of Working</label>
-              <input class="form-control" id="disabledInput" type="text" value="Date" disabled>
-          </div>
-          <div class="col-md-4">
-              <label for="month" class="form-label">Source Area</label>
-              <input class="form-control" id="disabledInput" type="text" value="Source Area" disabled>
-          </div>
-          <div class="col-md-4">
-              <label for="month" class="form-label">Destination Area</label>
-              <input class="form-control" id="disabledInput" type="text" value="Destination Area" disabled>
-          </div>
+      </div>
+      <div class="mb-3 row align-items-center">
+        <div class="col-md-4">
+            <label for="month" class="form-label">Date of Working</label>
+            <input class="form-control" id="disabledInput" type="text" value="{{date}}" disabled>
         </div>
-      </form>
+        <div class="col-md-4">
+            <label for="month" class="form-label">Source Area</label>
+            <input class="form-control" id="disabledInput" type="text" value="{{source_area}}" disabled>
+        </div>
+        <div class="col-md-4">
+            <label for="month" class="form-label">Destination Area</label>
+            <input class="form-control" id="disabledInput" type="text" value="{{destination_area}}" disabled>
+        </div>
+      </div>
       <hr />
-      <form action="">
+      <form method="POST">
+        {% csrf_token %}
           <div class="shadow p-3 mb-3 bg-body-tertiary rounded">
               <h5>Doctor Visit</h5>
               <table class="table">
@@ -53,15 +47,15 @@
                 <tbody>
                   <tr>
                     <td class="col-md-4">
-                      <select class="form-select" aria-label="Default select example">
-                          <option selected>Open this select menu</option>
-                          <option value="1">One</option>
-                          <option value="2">Two</option>
-                          <option value="3">Three</option>
+                      <select id="doctor" name="doctor" class="form-select" aria-label="Default select example" required>
+                          <option value="" selected disabled>Open this select menu</option>
+                          {% for doctor in doctors %}
+                            <option value="{{doctor.id}}">{{doctor.doctor_name}}</option>
+                          {% endfor %}
                         </select>
                     </td>
-                    <td><input type="time" class="form-control" id="departure-time" name="departure-time"></td>
-                    <td><input type="time" class="form-control" id="arrival-time" name="arrival-time"></td>
+                    <td><input type="time" class="form-control" id="doctor_arrival_time" name="doctor_arrival_time" required></td>
+                    <td><input type="time" class="form-control" id="doctor_departure_time" name="doctor_departure_time" required></td>
                   </tr>
                 </tbody>
               </table>
@@ -79,28 +73,23 @@
                 <tbody>
                   <tr>
                     <td>
-                      <select class="form-select" aria-label="Default select example">
-                          <option selected>Open this select menu</option>
-                          <option value="1">One</option>
-                          <option value="2">Two</option>
-                          <option value="3">Three</option>
+                      <select id="product" name="product" class="form-select" aria-label="Default select example" required>
+                          <option value="" selected disabled>Open this select menu</option>
+                          {% for product in products %}
+                            <option value="{{product.id}}">{{product.product}}</option>
+                          {% endfor %}
                         </select>
                     </td>
                     <td>
-                      <select class="form-select" aria-label="Default select example">
-                          <option selected>Open this select menu</option>
-                          <option value="1">One</option>
-                          <option value="2">Two</option>
-                          <option value="3">Three</option>
+                      <select id="product_unit" name="product_unit" class="form-select" aria-label="Default select example" required>
+                          <option value="" selected disabled>Open this select menu</option>
+                          {% for unit in units %}
+                            <option value="{{unit.id}}">{{unit.unit}}</option>
+                          {% endfor %}
                         </select>
                     </td>
                     <td>
-                      <select class="form-select" aria-label="Default select example">
-                          <option selected>Open this select menu</option>
-                          <option value="1">One</option>
-                          <option value="2">Two</option>
-                          <option value="3">Three</option>
-                        </select>
+                      <input type="number" class="form-control" id="product_qty" name="product_qty" aria-describedby="quantity" min="1" required>
                     </td>
                   </tr>
                 </tbody>
@@ -119,28 +108,23 @@
                 <tbody>
                   <tr>
                     <td>
-                      <select class="form-select" aria-label="Default select example">
-                          <option selected>Open this select menu</option>
-                          <option value="1">One</option>
-                          <option value="2">Two</option>
-                          <option value="3">Three</option>
+                      <select id="gift" name="gift" class="form-select" aria-label="Default select example" required>
+                          <option value="" selected disabled>Open this select menu</option>
+                          {% for gift in gifts %}
+                            <option value="{{gift.id}}">{{gift.gift_name}}</option>
+                          {% endfor %}
                         </select>
                     </td>
                     <td>
-                      <select class="form-select" aria-label="Default select example">
-                          <option selected>Open this select menu</option>
-                          <option value="1">One</option>
-                          <option value="2">Two</option>
-                          <option value="3">Three</option>
+                      <select id="gift_unit" name="gift_unit" class="form-select" aria-label="Default select example" required>
+                          <option value="" selected disabled>Open this select menu</option>
+                          {% for unit in units %}
+                            <option value="{{unit.id}}">{{unit.unit}}</option>
+                          {% endfor %}
                         </select>
                     </td>
                     <td>
-                      <select class="form-select" aria-label="Default select example">
-                          <option selected>Open this select menu</option>
-                          <option value="1">One</option>
-                          <option value="2">Two</option>
-                          <option value="3">Three</option>
-                        </select>
+                      <input type="number" class="form-control" id="gift_qty" name="gift_qty" aria-describedby="quantity" min="1" required>
                     </td>
                   </tr>
                 </tbody>
@@ -159,23 +143,21 @@
                 <tbody>
                   <tr>
                     <td class="col-md-4">
-                      <select class="form-select" aria-label="Default select example">
-                          <option selected>Open this select menu</option>
-                          <option value="1">One</option>
-                          <option value="2">Two</option>
-                          <option value="3">Three</option>
+                      <select id="stockist" name="stockist" class="form-select" aria-label="Default select example" required>
+                          <option value="" selected disabled>Open this select menu</option>
+                          {% for stockist in stockists %}
+                            <option value="{{stockist.id}}">{{stockist.stockist_name}}</option>
+                          {% endfor %}
                         </select>
                     </td>
-                    <td><input type="time" class="form-control" id="departure-time" name="departure-time"></td>
-                    <td><input type="time" class="form-control" id="arrival-time" name="arrival-time"></td>
+                    <td><input type="time" class="form-control" id="stockist_arrival_time" name="stockist_arrival_time" required></td>
+                    <td><input type="time" class="form-control" id="stockist_departure_time" name="stockist_departure_time" required></td>
                   </tr>
                 </tbody>
               </table>
           </div>
           <hr />
-          
-          <button type="button" class="btn btn-success w-100">Submit</button>
-          
+          <button type="submit" class="btn btn-success w-100">Submit</button>  
         </form>
     </div>
   </div>

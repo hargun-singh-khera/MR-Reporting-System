@@ -52,7 +52,7 @@ class ProductMaster(models.Model):
    
 class DoctorMaster(models.Model):
     doctor_name = models.CharField(max_length=100)
-    area = models.ForeignKey(CityMaster, on_delete = models.CASCADE)
+    area = models.ForeignKey(AreaMaster, on_delete = models.CASCADE)
     mobile_number = models.CharField(max_length=10, unique=True)
     def __str__(self):
         return self.doctor_name
@@ -120,7 +120,7 @@ def grant_user_permissions(sender, instance, created, **kwargs):
 class StockistMaster(models.Model):
     stockist_name = models.CharField(max_length=100, unique=True)
     address = models.TextField()
-    area = models.ForeignKey(CityMaster, on_delete = models.CASCADE)
+    area = models.ForeignKey(AreaMaster, on_delete = models.CASCADE)
     mobile_number = models.CharField(max_length=10, unique=True)
 
     def __str__(self):
