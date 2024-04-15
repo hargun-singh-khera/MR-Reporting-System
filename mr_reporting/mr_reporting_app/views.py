@@ -86,14 +86,13 @@ def daily_report_form(request):
 @login_required(login_url="/login")
 def daily_report_form_detail(request):
     employees = UserMaster.objects.filter(is_superuser=False)
-    employee_id = request.GET.get('employee', None)
+    employee_id_received = request.GET.get('employee', None)
     date = request.GET.get('date')
     source_area = request.GET.get('from')
     destination_area = request.GET.get('to')
     employee_designation = None
-    tour_program = None
-    employee_designation = UserMaster.objects.get(id=employee_id)
-    tour_program = TourProgram.objects.filter(employee_id=employee_id)
+    employee_designation = UserMaster.objects.get(id=employee_id_received)
+    tour_program = TourProgram.objects.filter(employee_id=employee_id_received)
     doctors = None
     stockists = None
     gifts = GiftMaster.objects.all()
@@ -141,27 +140,39 @@ def daily_report_form_detail(request):
         print("Doctor Id:", doctor_id, "Product Id:", product_id, "Product Unit Id:", product_unit_id, "Gift Id:", gift_id, 
               "Gift Unit Id:", gift_unit_id, "Stockist Id:", stockist_id)
 
-        # data = DailyReporting(
-        #     employee=employee_id,
-        #     designation=emp_designation,
-        #     date_of_working=date_of_working,
-        #     source_area=source_area_id,
-        #     destination_area=destination_area_id,
-        #     doctor=doctor_id,
-        #     doctor_time_in=doctor_arrival_time, 
-        #     doctor_time_out=doctor_departure_time, 
-        #     product=product_id,
-        #     product_unit_id=product_unit,
-        #     product_quantity=product_qty,
-        #     gift=gift_id, 
-        #     gift_unit_id=gift_unit,
-        #     gift_quantity=gift_qty,
-        #     stockist=stockist_id, 
-        #     stockist_time_in=stockist_arrival_time, 
-        #     stockist_time_out=stockist_departure_time
-        # )
-        # data.save()
+        data = DailyReporting(
+            employee=employee_id,
+            designation=emp_designation,
+            date_of_working=date_of_working,
+            source_area=source_area_id,
+            destination_area=destination_area_id,
+            doctor=doctor_id,
+            doctor_time_in=doctor_arrival_time, 
+            doctor_time_out=doctor_departure_time, 
+            product=product_id,
+            product_unit_id=product_unit,
+            product_quantity=product_qty,
+            gift=gift_id, 
+            gift_unit_id=gift_unit,
+            gift_quantity=gift_qty,
+            stockist=stockist_id, 
+            stockist_time_in=stockist_arrival_time, 
+            stockist_time_out=stockist_departure_time,
+            submitted=True
+        )
+        data.save()
 
+        print("Date string from form:", date_of_working)
+        date_obj = datetime.strptime(date_of_working, '%B %d, %Y').date()
+        print("Date object after parsing:", date_obj)
+        date_of_tour = date_obj.strftime("%Y-%m-%d")
+        print("Formatted date:", date_of_tour)
+        # tour_program = tour_program.filter(date_of_tour=date_of_tour)
+        tour_program = TourProgram.objects.filter(date_of_tour=date_of_tour).filter(employee_id=employee_id_received).get()
+        print("Tour Program:", tour_program)
+        tour_program.submitted = True
+        tour_program.save()
+        
 
         print("POST executed")
 
@@ -175,7 +186,7 @@ def daily_report_form_detail(request):
     
     context = {
         'employees': employees,
-        'employee_id': employee_id,
+        'employee_id': employee_id_received,
         'employee_designation': employee_designation,
         'tour_program': tour_program,
         'date': date,
@@ -186,6 +197,7 @@ def daily_report_form_detail(request):
         'gifts': gifts,
         'units': units,
         'products': products,
+        # 'submitted': submitted,
     }
     return render(request, 'daily_report_form_detail.html', context)
 

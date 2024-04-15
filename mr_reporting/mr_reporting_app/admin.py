@@ -160,8 +160,18 @@ class TourProgramAdmin(admin.ModelAdmin):
 
 class DailyReportingAdmin(admin.ModelAdmin):
     list_display = ('employee', 'designation', 'date_of_working', 'source_area', 'destination_area', 'doctor', 'doctor_time_in', 
-                    'doctor_time_out', 'product', 'product_unit_id', 'product_quantity', 'gift', 'gift_unit_id', 'gift_quantity', 
+                    'doctor_time_out', 'product', 'product_unit', 'product_quantity', 'gift', 'gift_unit', 'gift_quantity', 
                     'stockist', 'stockist_time_in', 'stockist_time_out')
+    
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+ 
         
         
 admin.site.register(CountryMaster, CountryMasterAdmin)

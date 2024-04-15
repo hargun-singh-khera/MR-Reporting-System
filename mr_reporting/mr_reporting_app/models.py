@@ -150,24 +150,26 @@ class TourProgram(models.Model):
     date_of_tour = models.DateField(null=False, blank=False)
     from_area = models.ForeignKey(AreaMaster, on_delete=models.CASCADE, blank=False, related_name='from_area')
     to_area = models.ForeignKey(AreaMaster, on_delete=models.CASCADE, blank=False, related_name='to_area')
-    
+    submitted = models.BooleanField(default=False)
+
 
 class DailyReporting(models.Model):
-    employee = models.ForeignKey(UserMaster, on_delete=models.CASCADE)
+    employee = models.ForeignKey(UserMaster, on_delete=models.CASCADE, related_name='employee_id')
     designation = models.CharField(max_length=100)
     date_of_working = models.CharField(max_length=20)
     source_area = models.ForeignKey(AreaMaster, on_delete=models.CASCADE, related_name='source_area')
     destination_area = models.ForeignKey(AreaMaster, on_delete=models.CASCADE, related_name='destination_area')
-    doctor = models.ForeignKey(DoctorMaster, on_delete=models.CASCADE)
+    doctor = models.ForeignKey(DoctorMaster, on_delete=models.CASCADE, related_name='doctor_id')
     doctor_time_in = models.CharField(max_length=10)
     doctor_time_out = models.CharField(max_length=10)
-    product = models.ForeignKey(ProductMaster, on_delete=models.CASCADE)
+    product = models.ForeignKey(ProductMaster, on_delete=models.CASCADE, related_name='product_id')
     product_unit = models.ForeignKey(UnitMaster, on_delete=models.CASCADE, related_name='product_unit_id')
     product_quantity = models.CharField(max_length=10)
-    gift = models.ForeignKey(GiftMaster, on_delete=models.CASCADE)
+    gift = models.ForeignKey(GiftMaster, on_delete=models.CASCADE, related_name='gift_id')
     gift_unit = models.ForeignKey(UnitMaster, on_delete=models.CASCADE, related_name='gift_unit_id')
     gift_quantity = models.CharField(max_length=10)
     stockist = models.ForeignKey(StockistMaster, on_delete=models.CASCADE)
     stockist_time_in = models.CharField(max_length=10)
     stockist_time_out = models.CharField(max_length=10)
+    submitted = models.BooleanField(default=False)
 
