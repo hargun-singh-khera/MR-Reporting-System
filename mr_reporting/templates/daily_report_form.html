@@ -60,7 +60,6 @@
                     {% else %}
                     <a href="{% url 'daily_report_form_detail' %}?employee={{employee_id}}&date={{tour_prgm.date_of_tour}}&from={{tour_prgm.from_area}}&to={{tour_prgm.to_area}}" style="text-decoration: none;"><button class="btn btn-success w-100" type="submit">Fill Entry</button></a>
                     {% endif %}
-                    <!-- <a href="{% url 'daily_report_form_detail' %}?employee={{employee_id}}" class="btn btn-success w-100" type="submit()">Fill</a> -->
                   </td>
                 <tr>
               {% endfor %}

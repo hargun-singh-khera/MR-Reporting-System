@@ -8,5 +8,4 @@ urlpatterns = [
     path('form/', views.daily_report_form, name='daily_report_form'),
     path('report/', views.report, name='report'),
     path('form/detail', views.daily_report_form_detail, name='daily_report_form_detail')
-
 ]

@@ -68,19 +68,20 @@ class UserMasterAdmin(admin.ModelAdmin):
     model = UserMaster
     ordering = ('name',)
     search_fields = ('email', 'username', 'name',)
-    list_filter = ('email', 'name', 'name', 'is_active', 'is_staff', 'is_superuser')
+    # list_filter = ('email', 'name', 'name', 'is_active', 'is_staff', 'is_superuser')
     list_display = ('name', 'username', 'email', 'mobile_number', 'area', 'designation', 'under', 'date_of_birth', 'date_of_joining', 'is_superuser')
     fieldsets = (
-        ('User Creation Form', {'fields': ('email', 'username', 'name', 'mobile_number', 'area', 'designation', 'under', 'date_of_birth', 'date_of_joining', 'password', 'password1', 'password2')}),
+        ('User Creation Form', {'fields': ('email', 'username', 'name', 'mobile_number', 'area', 'designation', 'under', 'date_of_birth', 'date_of_joining', 'password1', 'password2')}),
         ('Permissions', {'fields': ('is_staff', 'is_active')})
     )
-    
+    readonly_fields = ('is_staff', 'is_active',)
     add_fieldsets = (
         ('User Creation Form', {
             'classes': ('wide',),
             'fields': ('email', 'username', 'name', 'password1', 'password2', 'is_active', 'is_staff')}
          ),
     )
+
     def save_model(self, request, obj, form, change):
         email = form.cleaned_data.get('email')
         if UserMaster.objects.filter(email=email).exists():
@@ -112,6 +113,7 @@ class UserMasterAdmin(admin.ModelAdmin):
         from_email = settings.EMAIL_HOST_USER
         recipient_list = [email]
         send_mail(subject, message, from_email, recipient_list, html_message=message)
+        
     
 class UnitMasterAdmin(admin.ModelAdmin):
     list_display = ('unit',)
@@ -155,13 +157,18 @@ class RequestsMasterAdmin(admin.ModelAdmin):
 class TourProgramAdmin(admin.ModelAdmin):
     form = TourProgramForm
     list_display = ('employee', 'date_of_tour', 'from_area', 'to_area')
+    exclude = ('submitted',)
     class Media:
         js = ('/static/js/dependent_dropdown.js',)
+
 
 class DailyReportingAdmin(admin.ModelAdmin):
     list_display = ('employee', 'designation', 'date_of_working', 'source_area', 'destination_area', 'doctor', 'doctor_time_in', 
                     'doctor_time_out', 'product', 'product_unit', 'product_quantity', 'gift', 'gift_unit', 'gift_quantity', 
                     'stockist', 'stockist_time_in', 'stockist_time_out')
+    search_fields = ('designation', 'date_of_working')
+    list_filter = ('employee', 'designation', 'date_of_working', 'doctor', 'product', 'gift', 'stockist')
+
     
     def has_add_permission(self, request):
         return False
@@ -169,8 +176,8 @@ class DailyReportingAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         return False
 
-    def has_delete_permission(self, request, obj=None):
-        return False
+    # def has_delete_permission(self, request, obj=None):
+    #     return False
  
         
         

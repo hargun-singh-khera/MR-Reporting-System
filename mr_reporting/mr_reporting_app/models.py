@@ -110,6 +110,7 @@ class UserMaster(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.name
     
+    
 @receiver(post_save, sender=UserMaster)
 def grant_user_permissions(sender, instance, created, **kwargs):
     if created:  # Only run this logic when a new user is created
