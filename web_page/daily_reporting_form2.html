@@ -49,7 +49,7 @@
           </div>
         </form>
         <hr />
-        <form action="">
+        <!-- <form action=""> -->
             <div class="shadow p-3 mb-3 bg-body-tertiary rounded">
                 <h5>Doctor Visit</h5>
                 <table class="table">
@@ -58,20 +58,22 @@
                       <th scope="col">Name of Doctor</th>
                       <th scope="col">Time in</th>
                       <th scope="col">Time out</th>
+                      <th></th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody id="form-fields">
                     <tr>
-                      <td class="col-md-4">
-                        <select class="form-select" aria-label="Default select example">
-                            <option selected>Open this select menu</option>
-                            <option value="1">One</option>
-                            <option value="2">Two</option>
-                            <option value="3">Three</option>
+                      <td class="doctor-row col-md-4">
+                        <select id="doctor" name="doctor" class="form-select" aria-label="Default select example" required>
+                            <option value="" selected disabled>Open this select menu</option>
+                            {% for doctor in doctors %}
+                              <option value="{{doctor.id}}">{{doctor.doctor_name}}</option>
+                            {% endfor %}
                           </select>
                       </td>
-                      <td><input type="time" class="form-control" id="departure-time" name="departure-time"></td>
-                      <td><input type="time" class="form-control" id="arrival-time" name="arrival-time"></td>
+                      <td><input type="time" class="form-control" id="doctor_arrival_time" name="doctor_arrival_time" required></td>
+                      <td><input type="time" class="form-control" id="doctor_departure_time" name="doctor_departure_time" required></td>
+                      <td><button id="btn-doctor-add" class="btn btn-primary w-100">Add</button></td>
                     </tr>
                   </tbody>
                 </table>
@@ -186,10 +188,12 @@
             
             <button type="button" class="btn btn-success w-100">Submit</button>
             
-          </form>
+          <!-- </form> -->
       </div>
     </div>
-    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="report.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   </body>
 </html>

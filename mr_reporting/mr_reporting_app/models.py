@@ -156,21 +156,38 @@ class TourProgram(models.Model):
 
 class DailyReporting(models.Model):
     employee = models.ForeignKey(UserMaster, on_delete=models.CASCADE, related_name='employee_id')
-    designation = models.CharField(max_length=100)
+    designation = models.ForeignKey(Group, on_delete=models.CASCADE)
     date_of_working = models.CharField(max_length=20)
     source_area = models.ForeignKey(AreaMaster, on_delete=models.CASCADE, related_name='source_area')
     destination_area = models.ForeignKey(AreaMaster, on_delete=models.CASCADE, related_name='destination_area')
-    doctor = models.ForeignKey(DoctorMaster, on_delete=models.CASCADE, related_name='doctor_id')
+
+
+class DoctorAdded(models.Model):
+    daily_reporting = models.ForeignKey(DailyReporting, on_delete=models.CASCADE, related_name='daily_reporting')
+    doctor = models.ForeignKey(DoctorMaster, on_delete = models.CASCADE)
     doctor_time_in = models.CharField(max_length=10)
     doctor_time_out = models.CharField(max_length=10)
-    product = models.ForeignKey(ProductMaster, on_delete=models.CASCADE, related_name='product_id')
-    product_unit = models.ForeignKey(UnitMaster, on_delete=models.CASCADE, related_name='product_unit_id')
-    product_quantity = models.CharField(max_length=10)
-    gift = models.ForeignKey(GiftMaster, on_delete=models.CASCADE, related_name='gift_id')
-    gift_unit = models.ForeignKey(UnitMaster, on_delete=models.CASCADE, related_name='gift_unit_id')
-    gift_quantity = models.CharField(max_length=10)
+    status = models.BooleanField(default=False)
+
+
+class ProductAdded(models.Model):
+    product = models.ForeignKey(ProductMaster, on_delete=models.CASCADE)
+    unit = models.ForeignKey(UnitMaster, on_delete=models.CASCADE)
+    quantity = models.CharField(max_length=100)
+    doctor = models.ForeignKey(DoctorMaster, on_delete=models.CASCADE)
+    daily_reporting = models.ForeignKey(DailyReporting, on_delete=models.CASCADE)
+
+class GiftAdded(models.Model):
+    gift = models.ForeignKey(GiftMaster, on_delete=models.CASCADE)
+    unit = models.ForeignKey(UnitMaster, on_delete=models.CASCADE)
+    quantity = models.CharField(max_length=100)
+    doctor = models.ForeignKey(DoctorMaster, on_delete=models.CASCADE)
+    daily_reporting = models.ForeignKey(DailyReporting, on_delete=models.CASCADE)
+
+class StockistAdded(models.Model):
     stockist = models.ForeignKey(StockistMaster, on_delete=models.CASCADE)
     stockist_time_in = models.CharField(max_length=10)
     stockist_time_out = models.CharField(max_length=10)
-    submitted = models.BooleanField(default=False)
+    daily_reporting = models.ForeignKey(DailyReporting, on_delete=models.CASCADE)
+
 

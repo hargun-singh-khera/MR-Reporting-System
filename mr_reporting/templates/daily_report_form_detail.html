@@ -1,24 +1,23 @@
 {% extends 'base.html' %}
 
 {% block body %}
-{% include 'header.html' %}
 
 <div class="container-fluid">
-  <form method="POST">
-    {% csrf_token %}
+  <!-- <form method="POST">
+    {% csrf_token %} -->
     <div class="shadow-lg col-md-10 p-4 m-5 bg-body-tertiary rounded mx-auto">
       <div class="mb-3 row align-items-center">
         <label for="employeeName" class="form-label col-md-3">Employee Name</label>
         <div class="col-md-9">
-          <input class="form-control" id="employee_name" type="text" value="{{employee_designation.name}}" disabled>
-          <input class="form-control" id="employee_name_hidden" name="employee_name" type="hidden" value="{{employee_designation.name}}">
+          <input class="form-control" id="employee_name" type="text" value="{{employee}}" disabled>
+          <input class="form-control" id="employee_name_hidden" name="employee_name" type="hidden" value="{{employee}}">
         </div>
       </div>
       <div class="mb-3 row align-items-center">
         <label for="employeeName" class="form-label col-md-3">Designation</label>
         <div class="col-md-9">
-            <input class="form-control" id="employee_designation" type="text" value="{{employee_designation.designation}}" disabled>
-            <input class="form-control" id="employee_designation_hidden" name="employee_designation" type="hidden" value="{{employee_designation.designation}}">
+            <input class="form-control" id="employee_designation" type="text" value="{{designation}}" disabled>
+            <input class="form-control" id="employee_designation_hidden" name="employee_designation" type="hidden" value="{{designation}}">
         </div>
       </div>
       <div class="mb-3 row align-items-center">
@@ -39,141 +38,375 @@
         </div>
       </div>
       <hr />
-      
-          <div class="shadow p-3 mb-3 bg-body-tertiary rounded">
-              <h5>Doctor Visit</h5>
-              <table class="table">
+      <div class="shadow p-3 mb-3 bg-body-tertiary rounded">
+        <h5>Doctor Visit</h5>
+        <form method="POST">
+        {% csrf_token %}
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Name of Doctor</th>
+              <th scope="col">Time in</th>
+              <th scope="col">Time out</th>
+              <th></th>
+            </tr>
+          </thead>
+              <tbody>
+                    <tr>
+                      <td class="col-md-4">
+                        <select id="doctor" name="doctor" class="form-select" aria-label="Default select example" required>
+                            <option value="" selected disabled>Open this select menu</option>
+                            {% for doctor in doctors %}
+                              <option value="{{doctor.id}}">{{doctor.doctor_name}}</option>
+                            {% endfor %}
+                          </select>
+                      </td>
+                      <td><input type="time" class="form-control" id="doctor_arrival_time" name="doctor_arrival_time" required></td>
+                      <td><input type="time" class="form-control" id="doctor_departure_time" name="doctor_departure_time" required></td>
+                      {% if doctors|length > 0 %}
+                      <td><button class="btn btn-primary rounded-pill w-100">Add Doctor</button></td>
+                      {% else %}
+                      <td><button class="btn btn-primary rounded-pill w-100" disabled>Add Doctor</button></td>
+                      {% endif %}
+                    </tr>
+                  </tbody>
+                </table>
+              </form>
+              {% if doctors_added|length > 0 %}
+              <table class="table table-striped">
                 <thead>
                   <tr>
-                    <th scope="col">Name of Doctor</th>
+                    <th scope="col">Choice</th>
+                    <th scope="col">S.No</th>
+                    <th scope="col">Doctor Name</th>
                     <th scope="col">Time in</th>
                     <th scope="col">Time out</th>
+                    <th scope="col">Actions</th>
+                    <th scope="col"></th>
                   </tr>
                 </thead>
                 <tbody>
+                  {% for data in doctors_added %}
                   <tr>
-                    <td class="col-md-4">
-                      <select id="doctor" name="doctor" class="form-select" aria-label="Default select example" required>
-                          <option value="" selected disabled>Open this select menu</option>
-                          {% for doctor in doctors %}
-                            <option value="{{doctor.id}}">{{doctor.doctor_name}}</option>
-                          {% endfor %}
-                        </select>
+                    <td>
+                      <span class="custom-checkbox">
+                          <input class="form-check-input" type="radio" name="options" value="{{ data.doctor_id }}" id="checkbox_{{forloop.counter}}" onchange="doctorfield()">
+                          <input type="submit" style="display:none">
+                        </span>
                     </td>
-                    <td><input type="time" class="form-control" id="doctor_arrival_time" name="doctor_arrival_time" required></td>
-                    <td><input type="time" class="form-control" id="doctor_departure_time" name="doctor_departure_time" required></td>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{ data.doctor }}</td>
+                    <td>{{ data.doctor_time_in }}</td>
+                    <td>{{ data.doctor_time_out }}</td>
+                    <td>
+                        <button class="btn btn-warning rounded-pill w-100" type="submit">Update</button>
+                      
+                    </td>
+                    <td>
+                      <form method="POST" action="{% url 'daily_report_form_detail_delete_doctor' id=employee_id tour_id=tour_id pk=data.id %}">
+                        {% csrf_token %}
+                        <button class="btn btn-danger rounded-pill w-100" type="submit">Delete</button>
+                      </form>
+                    </td>
                   </tr>
+                  {% endfor %}
                 </tbody>
               </table>
+              {% endif %}
           </div>
           <div class="shadow p-3 mb-3 bg-body-tertiary rounded">
               <h5>Sample Given</h5>
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th scope="col">Product Name</th>
-                    <th scope="col">Unit</th>
-                    <th scope="col">Quantity</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>
-                      <select id="product" name="product" class="form-select" aria-label="Default select example" required>
-                          <option value="" selected disabled>Open this select menu</option>
-                          {% for product in products %}
-                            <option value="{{product.id}}">{{product.product}}</option>
-                          {% endfor %}
-                        </select>
-                    </td>
-                    <td>
-                      <select id="product_unit" name="product_unit" class="form-select" aria-label="Default select example" required>
-                          <option value="" selected disabled>Open this select menu</option>
-                          {% for unit in units %}
-                            <option value="{{unit.id}}">{{unit.unit}}</option>
-                          {% endfor %}
-                        </select>
-                    </td>
-                    <td>
-                      <input type="number" class="form-control" id="product_qty" name="product_qty" aria-describedby="quantity" min="1" required>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-          </div>
+              <form method="POST">
+                {% csrf_token %}
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Product Name</th>
+                      <th scope="col">Unit</th>
+                      <th scope="col">Quantity</th>
+                      <th scope="col"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <select id="product" name="product" class="form-select" aria-label="Default select example" disabled required>
+                            <option value="" selected disabled>Open this select menu</option>
+                            {% for product in products %}
+                              <option value="{{product.id}}">{{product.product}}</option>
+                            {% endfor %}
+                          </select>
+                      </td>
+                      <td>
+                        <select id="product_unit" name="product_unit" class="form-select" aria-label="Default select example" disabled required>
+                            <option value="" selected disabled>Open this select menu</option>
+                            {% for unit in units %}
+                              <option value="{{unit.id}}">{{unit.unit}}</option>
+                            {% endfor %}
+                          </select>
+                      </td>
+                      <td>
+                        <input type="number" class="form-control" id="product_qty" name="product_qty" aria-describedby="quantity" min="1" disabled required>
+                      </td>
+                      <td><button id="product_btn" class="btn btn-primary rounded-pill w-100" disabled>Add Product</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </form>
+                {% if products_added|length > 0 %}
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th scope="col">S.No</th>
+                      <th scope="col">Product Name</th>
+                      <th scope="col">Unit</th>
+                      <th scope="col">Quantity</th>
+                      <th scope="col">Action</th>
+                      <th scope="col"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for data in products_added %}
+                    <tr>
+                      <th scope="row">{{ forloop.counter }}</th>
+                      <td>{{ data.product }}</td>
+                      <td>{{ data.unit }}</td>
+                      <td>{{ data.quantity }}</td>
+                      <td><button class="btn btn-warning rounded-pill w-100" type="button">Update</button></td>
+                      <td>
+                        <form method="POST" action="{% url 'daily_report_form_detail_delete_product' id=employee_id tour_id=tour_id pk=data.id %}">
+                          {% csrf_token %}
+                          <button class="btn btn-danger rounded-pill w-100" type="submit">Delete</button>
+                        </form>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                {% endif %}
+              </div>
           <div class="shadow p-3 mb-3 bg-body-tertiary rounded">
               <h5>Gift Given</h5>
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th scope="col">Gift Name</th>
-                    <th scope="col">Unit</th>
-                    <th scope="col">Quantity</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>
-                      <select id="gift" name="gift" class="form-select" aria-label="Default select example" required>
-                          <option value="" selected disabled>Open this select menu</option>
-                          {% for gift in gifts %}
-                            <option value="{{gift.id}}">{{gift.gift_name}}</option>
-                          {% endfor %}
-                        </select>
-                    </td>
-                    <td>
-                      <select id="gift_unit" name="gift_unit" class="form-select" aria-label="Default select example" required>
-                          <option value="" selected disabled>Open this select menu</option>
-                          {% for unit in units %}
-                            <option value="{{unit.id}}">{{unit.unit}}</option>
-                          {% endfor %}
-                        </select>
-                    </td>
-                    <td>
-                      <input type="number" class="form-control" id="gift_qty" name="gift_qty" aria-describedby="quantity" min="1" required>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <form method="POST">
+                {% csrf_token %}
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Gift Name</th>
+                      <th scope="col">Unit</th>
+                      <th scope="col">Quantity</th>
+                      <th scope="col">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <select id="gift" name="gift" class="form-select" aria-label="Default select example" disabled required>
+                            <option value="" selected disabled>Open this select menu</option>
+                            {% for gift in gifts %}
+                              <option value="{{gift.id}}">{{gift.gift_name}}</option>
+                            {% endfor %}
+                          </select>
+                      </td>
+                      <td>
+                        <select id="gift_unit" name="gift_unit" class="form-select" aria-label="Default select example" disabled required>
+                            <option value="" selected disabled>Open this select menu</option>
+                            {% for unit in units %}
+                              <option value="{{unit.id}}">{{unit.unit}}</option>
+                            {% endfor %}
+                          </select>
+                      </td>
+                      <td>
+                        <input type="number" class="form-control" id="gift_qty" name="gift_qty" aria-describedby="quantity" min="1" disabled required>
+                      </td>
+                      <td><button id="gift_btn" class="btn btn-primary rounded-pill w-100" disabled>Add Gift</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </form>
+              {% if gifts_added|length > 0 %}
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th scope="col">S.No</th>
+                      <th scope="col">Gift Name</th>
+                      <th scope="col">Unit</th>
+                      <th scope="col">Quantity</th>
+                      <th scope="col">Action</th>
+                      <th scope="col"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for data in gifts_added %}
+                    <tr>
+                      <th scope="row">{{ forloop.counter }}</th>
+                      <td>{{ data.gift }}</td>
+                      <td>{{ data.unit }}</td>
+                      <td>{{ data.quantity }}</td>
+                      <td><button class="btn btn-warning rounded-pill w-100" type="button">Update</button></td>
+                      <td>
+                        <form method="POST" action="{% url 'daily_report_form_detail_delete_gift' id=employee_id tour_id=tour_id pk=data.id %}">
+                          {% csrf_token %}
+                          <button class="btn btn-danger rounded-pill w-100" type="submit">Delete</button>
+                        </form>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                {% endif %}
           </div>
           <div class="shadow p-3 mb-3 bg-body-tertiary rounded">
               <h5>Stockist Visited</h5>
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th scope="col">Stockist Name</th>
-                    <th scope="col">Time in</th>
-                    <th scope="col">Time out</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="col-md-4">
-                      <select id="stockist" name="stockist" class="form-select" aria-label="Default select example" required>
-                          <option value="" selected disabled>Open this select menu</option>
-                          {% for stockist in stockists %}
-                            <option value="{{stockist.id}}">{{stockist.stockist_name}}</option>
-                          {% endfor %}
-                        </select>
-                    </td>
-                    <td><input type="time" class="form-control" id="stockist_arrival_time" name="stockist_arrival_time" required></td>
-                    <td><input type="time" class="form-control" id="stockist_departure_time" name="stockist_departure_time" required></td>
-                  </tr>
-                </tbody>
-              </table>
+              <form method="POST">
+                {% csrf_token %}
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Stockist Name</th>
+                      <th scope="col">Time in</th>
+                      <th scope="col">Time out</th>
+                      <th scope="col">Actions</th>
+                      <th scope="col"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="col-md-4">
+                        <select id="stockist" name="stockist" class="form-select" aria-label="Default select example" required>
+                            <option value="" selected disabled>Open this select menu</option>
+                            {% for stockist in stockists %}
+                              <option value="{{stockist.id}}">{{stockist.stockist_name}}</option>
+                            {% endfor %}
+                          </select>
+                      </td>
+                      <td><input type="time" class="form-control" id="stockist_arrival_time" name="stockist_arrival_time" required></td>
+                      <td><input type="time" class="form-control" id="stockist_departure_time" name="stockist_departure_time" required></td>
+                      <td><button id="stockist_btn" class="btn btn-primary rounded-pill w-100">Add Stockist</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </form>
+              {% if stockists_added|length > 0 %}
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th scope="col">S.No</th>
+                      <th scope="col">Stockist Name</th>
+                      <th scope="col">Time in</th>
+                      <th scope="col">Time out</th>
+                      <th scope="col">Action</th>
+                      <th scope="col"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for data in stockists_added %}
+                    <tr>
+                      <th scope="row">{{ forloop.counter }}</th>
+                      <td>{{ data.stockist }}</td>
+                      <td>{{ data.stockist_time_in }}</td>
+                      <td>{{ data.stockist_time_out }}</td>
+                      <td>
+                          <button class="btn btn-warning rounded-pill w-100" type="submit">Update</button>
+                      </td>
+                      <td>
+                        <form method="POST" action="{% url 'daily_report_form_detail_delete_stockist' id=employee_id tour_id=tour_id pk=data.id %}">
+                          {% csrf_token %}
+                          <button class="btn btn-danger rounded-pill w-100" type="submit">Delete</button>
+                        </form>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                {% endif %}
           </div>
           <hr />
-          <a href="{% url 'daily_report_form' %}/employee_id"><button type="submit" class="btn btn-success w-100">Submit</button></a>  
-        </form>
+          <button type="submit" class="btn btn-success w-100">Submit</button>
+        <!-- </form> -->
     </div>
   </div>
   <script>
+    
     function getCurrentUrl() {
         return window.location.origin + window.location.pathname;
     }
-    function employeefield() {
-        var employeeId = document.getElementById('employee').value;
-        window.location = getCurrentUrl() + "?employee=" + employeeId;
+    function doctorfield() {
+      var selectedDoctor = document.querySelector('input[name="options"]:checked');
+      if (selectedDoctor) {
+          console.log("Checkbox selected")
+          var doctorId = selectedDoctor.value;
+          console.log(doctorId);
+          localStorage.setItem('selectedDoctorId', doctorId);
+          window.location = getCurrentUrl() + "?doctorId=" + doctorId;  
+      } else {
+          console.log("No doctor selected");
     }
+    }
+
+    // // Function to retrieve the selected choice from local storage
+    function getSelectedDoctorId() {
+        return localStorage.getItem('selectedDoctorId');
+    }
+
+    // Check if a selected choice exists in local storage
+    var storedDoctorId = getSelectedDoctorId();
+    if (storedDoctorId) {
+        // Update the radio button with the stored choice
+        var radioButton = document.querySelector('input[name="options"][value="' + storedDoctorId + '"]');
+        if (radioButton) {
+            radioButton.checked = true;
+        }
+    }
+
+    
+
+    // // Get all checkboxes with class 'form-check-input'
+    
+    var product_dropdown = document.getElementById('product')
+    var product_unit_dropdown = document.getElementById('product_unit')
+    var product_qty = document.getElementById('product_qty')
+    var product_btn = document.getElementById('product_btn')
+
+    var gift = document.getElementById('gift')
+    var gift_unit = document.getElementById('gift_unit')
+    var gift_qty = document.getElementById('gift_qty')
+    var gift_btn = document.getElementById('gift_btn')
+    
+    const checkboxes = document.querySelectorAll('.form-check-input');
+    checkboxes.forEach(function(checkbox) {
+        // Get the corresponding select box and input field using checkbox's ID
+        const selectBoxId = 'checkbox_' + checkbox.id.split('_')[1]; // Extracting the counter part
+        
+        // Add change event listener to each checkbox
+        // checkbox.addEventListener('change', function() {
+          // console.log("Checkbox changed")
+          if(storedDoctorId) {
+            product_dropdown.disabled = false;
+            product_unit_dropdown.disabled = false;
+            product_qty.disabled = false;
+            product_btn.disabled = false;
+
+            gift.disabled = false;
+            gift_unit.disabled = false;
+            gift_qty.disabled = false;
+            gift_btn.disabled = false;
+          }
+          else {
+            product_dropdown.disabled = true;
+            product_unit_dropdown.disabled = true;
+            product_qty.disabled = true;
+            product_btn.disabled = true;
+
+            gift.disabled = true;
+            gift_unit.disabled = true;
+            gift_qty.disabled = true;
+            gift_btn.disabled = true;
+          }
+            console.log("Changed", selectBoxId)
+        });
+    
+      // })
+
   </script>
 {% endblock body %}

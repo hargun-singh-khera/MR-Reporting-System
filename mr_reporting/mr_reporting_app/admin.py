@@ -162,12 +162,12 @@ class TourProgramAdmin(admin.ModelAdmin):
         js = ('/static/js/dependent_dropdown.js',)
 
 
-class DailyReportingAdmin(admin.ModelAdmin):
-    list_display = ('employee', 'designation', 'date_of_working', 'source_area', 'destination_area', 'doctor', 'doctor_time_in', 
-                    'doctor_time_out', 'product', 'product_unit', 'product_quantity', 'gift', 'gift_unit', 'gift_quantity', 
-                    'stockist', 'stockist_time_in', 'stockist_time_out')
-    search_fields = ('designation', 'date_of_working')
-    list_filter = ('employee', 'designation', 'date_of_working', 'doctor', 'product', 'gift', 'stockist')
+# class DailyReportingAdmin(admin.ModelAdmin):
+#     list_display = ('employee', 'designation', 'date_of_working', 'source_area', 'destination_area', 'doctor', 'doctor_time_in', 
+#                     'doctor_time_out', 'product', 'product_unit', 'product_quantity', 'gift', 'gift_unit', 'gift_quantity', 
+#                     'stockist', 'stockist_time_in', 'stockist_time_out')
+#     search_fields = ('designation', 'date_of_working')
+#     list_filter = ('employee', 'designation', 'date_of_working', 'doctor', 'product', 'gift', 'stockist')
 
     
     def has_add_permission(self, request):
@@ -195,4 +195,4 @@ admin.site.register(GiftMaster, GiftMasterAdmin)
 admin.site.register(UserAreaMapping, AreaMappingAdmin)
 admin.site.register(RequestsMaster, RequestsMasterAdmin)
 admin.site.register(TourProgram, TourProgramAdmin)
-admin.site.register(DailyReporting, DailyReportingAdmin)
+admin.site.register(DailyReporting)

@@ -7,6 +7,8 @@ from django.contrib.auth.decorators import login_required
 from .models import *
 from datetime import datetime
 from django.db import transaction
+from django.urls import reverse
+from django.http import HttpResponseRedirect
 
 
 
@@ -48,159 +50,255 @@ def redirect_url(request):
 def areamaster_add(request):
     return HttpResponse("Area Master")
 
-
 @login_required(login_url="/login")
-def daily_report_form(request):
-    employees = UserMaster.objects.filter(is_superuser=False)
-    employee_id = request.GET.get('employee', None)
-    month_name = request.GET.get('month', None)
-    print("Month ID: ", month_name)
-    months = None
-    employee_selected = False
-    month_selected = False
+def daily_report_form(request, id):
+    print(id)
+    employee = UserMaster.objects.get(id=id)
+    print(employee)
+    tour_program = TourProgram.objects.filter(employee_id=id)
+    months = set(program.date_of_tour.strftime('%B') for program in tour_program)
+    print(months)
     showTable = False
-    tour_program = None
-    if employee_id and employee_id.isdigit():
-        tour_program = TourProgram.objects.filter(employee_id=employee_id)
-        months = set(program.date_of_tour.strftime('%B') for program in tour_program)
-        employee_selected = True
-        print(months)
+    month_name = request.GET.get('month', None)
     if month_name:
         selected_month = datetime.strptime(month_name, '%B').month
         tour_program = tour_program.filter(date_of_tour__month=selected_month)
         month_selected = True
         print("Month: " + month_name)
-    if employee_selected and month_selected:
         showTable = True
 
     context = {
-        'employees': employees,
-        'employee_id': employee_id,
-        'tour_program': tour_program,
+        'employee': employee,
+        'employee_id':id,
         'months': months,
-        'showTable': showTable,
+        'tour_program': tour_program,
+        'showTable': showTable
     }
-    return render(request, 'daily_report_form.html', context)
-
+    return render(request, 'daily_report_form.html' , context)
 
 @login_required(login_url="/login")
-def daily_report_form_detail(request):
-    employees = UserMaster.objects.filter(is_superuser=False)
-    employee_id_received = request.GET.get('employee', None)
-    date = request.GET.get('date')
-    source_area = request.GET.get('from')
-    destination_area = request.GET.get('to')
-    employee_designation = None
-    employee_designation = UserMaster.objects.get(id=employee_id_received)
-    tour_program = TourProgram.objects.filter(employee_id=employee_id_received)
-    doctors = None
-    stockists = None
+def daily_report_form_tour(request, id, tour_id):
+    tour_program = TourProgram.objects.filter(id=tour_id)
+    print("Tour Program:",tour_program)
+    if request.method == 'POST':
+        date_of_working = tour_program.get().date_of_tour
+        from_area = tour_program.get().from_area
+        to_area = tour_program.get().to_area
+        designation = UserMaster.objects.get(id=id).designation
+        print("Employee id:", id, "Date of working", date_of_working, "Source Area:", from_area, "Destination Area:",to_area)
+        employee = UserMaster.objects.get(id=id)
+        data = DailyReporting(
+            employee=employee,
+            designation=designation,
+            date_of_working=date_of_working,
+            source_area=from_area,
+            destination_area=to_area
+        )
+        data.save()
+        return redirect('daily_report_form_detail',id=id,tour_id=tour_id)
+
+@login_required(login_url="/login")
+def daily_report_form_detail(request,id,tour_id):
+    print("Hello")
+    employee_id = id
+    employee = UserMaster.objects.get(id=id)
+    # date = DailyReporting.objects.filter(employee_id=id).filter(date_of_tour=date).get().date_of_working
+    # tour_program = TourProgram.objects.filter(employee_id=id).filter(date_of_tour=date).get()
+    tour_program = TourProgram.objects.get(id=tour_id)
+    date = tour_program.date_of_tour
+    from_area = tour_program.from_area
+    to_area = tour_program.to_area
+    designation = employee.designation
+    area_id = AreaMaster.objects.get(area=to_area)
+    print("Employee:",employee, "Date:",date, "From Area:",from_area, "To Area:",to_area, "Designation:", designation,"Area Id:", area_id)
+
+    doctor_id = request.GET.get('doctorId', None)
+    if doctor_id:
+        print("Doctor Id of: ",doctor_id)
+        request.session["selected_doctor_id"] = doctor_id
+
     gifts = GiftMaster.objects.all()
     units = UnitMaster.objects.all()
     products = ProductMaster.objects.all()
+    doctors = DoctorMaster.objects.filter(area_id=area_id)
+    stockists = StockistMaster.objects.filter(area_id=area_id)
 
-    if destination_area:
-        destination_area_name = AreaMaster.objects.get(area=destination_area)
-        destination_area_id = destination_area_name.id
-        doctors = DoctorMaster.objects.filter(area_id=destination_area_id)
-        stockists = StockistMaster.objects.filter(area_id=destination_area_id)
+    daily_reporting = DailyReporting.objects.filter(date_of_working=date).get(employee_id=id)
+    print(daily_reporting)
+    daily_reporting_id = daily_reporting
 
-    if request.method == "POST":
-        employee_name = request.POST.get('employee_name')
-        emp_designation = request.POST.get('employee_designation')
-        date_of_working = request.POST.get('date_of_working')
-        emp_source_area = request.POST.get('source_area')
-        emp_destination_area = request.POST.get('destination_area')
-        doctor_name = request.POST.get('doctor')
-        doctor_departure_time = request.POST.get('doctor_departure_time')
-        doctor_arrival_time = request.POST.get('doctor_arrival_time')
-        product_name = request.POST.get('product')
-        product_unit = request.POST.get('product_unit')
-        product_qty = request.POST.get('product_qty')
-        gift = request.POST.get('gift')
-        gift_unit = request.POST.get('gift_unit')
-        gift_qty = request.POST.get('gift_qty')
-        stockist = request.POST.get('stockist')
-        stockist_departure_time = request.POST.get('stockist_departure_time')
-        stockist_arrival_time = request.POST.get('stockist_arrival_time')
 
-        employee_id = UserMaster.objects.get(name=employee_name)
-        source_area_id = AreaMaster.objects.get(area=emp_source_area)
-        destination_area_id = AreaMaster.objects.get(area=emp_destination_area)
+    doctors_in_daily_reporting = DoctorAdded.objects.filter(daily_reporting_id=daily_reporting_id).values_list('doctor__id', flat=True)
+    available_doctors = doctors.exclude(id__in=doctors_in_daily_reporting)
+    doctors = available_doctors
+
+    doctor_id = request.session.get('selected_doctor_id')
+    print("Session doctorid:", doctor_id)
+    products_in_daily_reporting = ProductAdded.objects.filter(doctor_id=doctor_id).values_list('product__id', flat=True)
+    available_products = products.exclude(id__in=products_in_daily_reporting)
+    products = available_products
+
+    gifts_in_daily_reporting = GiftAdded.objects.filter(doctor_id=doctor_id).values_list('gift__id', flat=True)
+    available_gifts = gifts.exclude(id__in=gifts_in_daily_reporting)
+    gifts = available_gifts
+
+    stockist_in_daily_reporting = StockistAdded.objects.filter(daily_reporting_id=daily_reporting_id).values_list('stockist__id', flat=True)
+    available_stockists = stockists.exclude(id__in=stockist_in_daily_reporting)
+    stockists = available_stockists
+
+
     
-        doctor_id = DoctorMaster.objects.get(id=int(doctor_name))
+    if request.method == "POST":
+        if 'doctor' in request.POST and 'doctor_arrival_time' in request.POST and 'doctor_departure_time' in request.POST:
+            doctor_name = request.POST.get('doctor')
+            time_in = request.POST.get('doctor_arrival_time')
+            time_out = request.POST.get('doctor_departure_time')
+            
 
-        product_id = ProductMaster.objects.get(id=int(product_name))
-        product_unit_id = UnitMaster.objects.get(id=int(product_unit))
-        gift_id = GiftMaster.objects.get(id=int(gift))
-        gift_unit_id = UnitMaster.objects.get(id=int(gift_unit))
-        stockist_id = StockistMaster.objects.get(id=int(stockist))
-       
-        print("Doctor Name:",  doctor_name)
-        print("Doctor Id:", doctor_id, "Product Id:", product_id, "Product Unit Id:", product_unit_id, "Gift Id:", gift_id, 
-              "Gift Unit Id:", gift_unit_id, "Stockist Id:", stockist_id)
+            doctor = DoctorMaster.objects.get(id=int(doctor_name))
 
-        data = DailyReporting(
-            employee=employee_id,
-            designation=emp_designation,
-            date_of_working=date_of_working,
-            source_area=source_area_id,
-            destination_area=destination_area_id,
-            doctor=doctor_id,
-            doctor_time_in=doctor_arrival_time, 
-            doctor_time_out=doctor_departure_time, 
-            product=product_id,
-            product_unit_id=product_unit,
-            product_quantity=product_qty,
-            gift=gift_id, 
-            gift_unit_id=gift_unit,
-            gift_quantity=gift_qty,
-            stockist=stockist_id, 
-            stockist_time_in=stockist_arrival_time, 
-            stockist_time_out=stockist_departure_time,
-            submitted=True
-        )
-        data.save()
+            print("Doc Name:", doctor, "Time in:", time_in, "Time out:", time_out)
+            
+            print("Daily Reporting:", daily_reporting)
+            data = DoctorAdded(
+                daily_reporting=daily_reporting,
+                doctor=doctor,
+                doctor_time_in=time_in,
+                doctor_time_out=time_out,
+                status = True
+            )
+            data.save()
+            
+            return redirect('daily_report_form_detail', id=id, tour_id=tour_id)
+    
+        if 'product' in request.POST and 'product_unit' in request.POST and 'product_qty' in request.POST:
+            product_id = request.POST.get('product')
+            unit_id = request.POST.get('product_unit')
+            quantity = request.POST.get('product_qty')
+            doctor_id = request.session.get('selected_doctor_id',None)
 
-        print("Date string from form:", date_of_working)
-        date_obj = datetime.strptime(date_of_working, '%B %d, %Y').date()
-        print("Date object after parsing:", date_obj)
-        date_of_tour = date_obj.strftime("%Y-%m-%d")
-        print("Formatted date:", date_of_tour)
-        # tour_program = tour_program.filter(date_of_tour=date_of_tour)
-        tour_program = TourProgram.objects.filter(date_of_tour=date_of_tour).filter(employee_id=employee_id_received).get()
-        print("Tour Program:", tour_program)
-        tour_program.submitted = True
-        tour_program.save()
+
+            product = ProductMaster.objects.get(id=int(product_id))
+            unit = UnitMaster.objects.get(id=int(unit_id))
+            doctor = DoctorMaster.objects.get(id=int(doctor_id))
+            
+            print("Product: ", product, "Unit: ", unit, "Qty: ", quantity, "DocId:", doctor)
+            print("Daily Reporting:", daily_reporting)
+
+            data = ProductAdded(
+                product=product,
+                unit=unit,
+                quantity=quantity,
+                doctor=doctor,
+                daily_reporting=daily_reporting
+            )
+            data.save()
+
+            return redirect('daily_report_form_detail', id=id, tour_id=tour_id)
         
+        if 'gift' in request.POST and 'gift_unit' in request.POST and 'gift_qty' in request.POST:
+            gift_id = request.POST.get('gift')
+            unit_id = request.POST.get('gift_unit')
+            quantity = request.POST.get('gift_qty')
+            doctor_id = request.session.get('selected_doctor_id',None)
 
-        print("POST executed")
+            gift = GiftMaster.objects.get(id=int(gift_id))
+            unit = UnitMaster.objects.get(id=int(unit_id))
+            doctor = DoctorMaster.objects.get(id=int(doctor_id))
 
-        print("Employee Name:", employee_name, "Employee Designation:", emp_designation, "Date of Working:", date_of_working, 
-              "Employee Source Area:", emp_source_area, "Employee Destination Area:", emp_destination_area)
-        print("Doctor name:", doctor_name, "Arrival Time:", doctor_arrival_time, "Departure Time:", doctor_departure_time)
-        print("Product Name:", product_name, "Product Unit:", product_unit, "Product Qty:", product_qty)
-        print("Gift Name:", gift, "Gift Unit:", gift_unit, "Gift Qty:", gift_qty)
-        print("Stockist Name:", stockist, "Arrival Time:", stockist_arrival_time, "Departure Time:", stockist_departure_time)
-        return redirect('daily_report_form')
+            print("Gift:", gift, "Unit:", unit, "Quantity:",quantity)
+
+            data = GiftAdded(
+                gift=gift,
+                unit=unit,
+                quantity=quantity,
+                doctor=doctor,
+                daily_reporting=daily_reporting
+            )
+            data.save()
+
+            return redirect('daily_report_form_detail', id=id, tour_id=tour_id)
+        
+        if 'stockist' in request.POST and 'stockist_arrival_time' in request.POST and 'stockist_departure_time' in request.POST:
+            stockist_id = request.POST.get('stockist')
+            time_in = request.POST.get('stockist_arrival_time')
+            time_out = request.POST.get('stockist_departure_time')
+            doctor_id = request.session.get('selected_doctor_id')
+            stockist = StockistMaster.objects.get(id=int(stockist_id))
+
+            print("Stockist:", stockist, "Time in:", time_in, "Time out:", time_out)
+
+            print("Daily Reporting:", daily_reporting)
+            data = StockistAdded(
+                stockist=stockist,
+                stockist_time_in=time_in,
+                stockist_time_out=time_out,
+                daily_reporting=daily_reporting,
+            )
+            data.save()
+            return redirect('daily_report_form_detail', id=id, tour_id=tour_id)
+
+    daily_reporting_id = DailyReporting.objects.filter(employee_id=id).filter(date_of_working=date).get()
+    doctors_added = DoctorAdded.objects.filter(daily_reporting_id=daily_reporting_id)
+    print(doctors_added)
+    
+    products_added = ProductAdded.objects.filter(daily_reporting_id=daily_reporting_id).filter(doctor_id=doctor_id)
+    print(products_added)
+    gifts_added = GiftAdded.objects.filter(daily_reporting_id=daily_reporting_id).filter(doctor_id=doctor_id)
+    print(gifts_added)
+    stockist_added = StockistAdded.objects.filter(daily_reporting_id=daily_reporting_id)
+    print(stockist_added)
     
     context = {
-        'employees': employees,
-        'employee_id': employee_id_received,
-        'employee_designation': employee_designation,
+        'employee': employee,
+        'employee_id': employee_id,
+        'tour_id': tour_id,
+        'designation': designation,
         'tour_program': tour_program,
         'date': date,
-        'source_area': source_area,
-        'destination_area': destination_area,
+        'source_area': from_area,
+        'destination_area': to_area,
         'doctors': doctors,
         'stockists': stockists,
+        'products': products,
         'gifts': gifts,
         'units': units,
-        'products': products,
-        # 'submitted': submitted,
+        'doctors_added': doctors_added,
+        'products_added': products_added,
+        'gifts_added': gifts_added,
+        'stockists_added': stockist_added
     }
     return render(request, 'daily_report_form_detail.html', context)
 
+def daily_report_form_detail_delete_doctor(request, id, tour_id, pk):
+    if request.method == 'POST':
+        doctor = DoctorAdded.objects.get(pk=pk)
+        print(doctor)
+        doctor.delete()
+        return HttpResponseRedirect(reverse('daily_report_form_detail', kwargs={'id': id, 'tour_id': tour_id}))
+    
+
+def daily_report_form_detail_delete_product(request, id, tour_id, pk):
+    if request.method == 'POST':
+        product = ProductAdded.objects.get(pk=pk)
+        print(product)
+        product.delete()
+        return HttpResponseRedirect(reverse('daily_report_form_detail', kwargs={'id': id, 'tour_id': tour_id}))
+    
+def daily_report_form_detail_delete_gift(request, id, tour_id, pk):
+    if request.method == 'POST':
+        gift = GiftAdded.objects.get(pk=pk)
+        print(gift)
+        gift.delete()
+        return HttpResponseRedirect(reverse('daily_report_form_detail', kwargs={'id': id, 'tour_id': tour_id}))
+    
+
+def daily_report_form_detail_delete_stockist(request, id, tour_id, pk):
+    if request.method == 'POST':
+        stockist = StockistAdded.objects.get(pk=pk)
+        print(stockist)
+        stockist.delete()
+        return HttpResponseRedirect(reverse('daily_report_form_detail', kwargs={'id': id, 'tour_id': tour_id}))
 
 
 @login_required(login_url="/login")
