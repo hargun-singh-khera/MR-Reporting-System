@@ -111,13 +111,13 @@ class UserMaster(AbstractBaseUser, PermissionsMixin):
         return self.name
     
     
-@receiver(post_save, sender=UserMaster)
-def grant_user_permissions(sender, instance, created, **kwargs):
-    if created:  # Only run this logic when a new user is created
-        user_group = instance.designation  # Retrieve the group associated with the user
-        if user_group:
-            permissions = Permission.objects.filter(group=user_group)  # Retrieve permissions associated with that group
-            instance.user_permissions.set(permissions)  # Assign permissions to the user
+# @receiver(post_save, sender=UserMaster)
+# def grant_user_permissions(sender, instance, created, **kwargs):
+#     if created:  # Only run this logic when a new user is created
+#         user_group = instance.designation  # Retrieve the group associated with the user
+#         if user_group:
+#             permissions = Permission.objects.filter(group=user_group)  # Retrieve permissions associated with that group
+#             instance.user_permissions.set(permissions)  # Assign permissions to the user
 
 
 class StockistMaster(models.Model):
@@ -138,13 +138,13 @@ class UserAreaMapping(models.Model):
         return str(self.user)
 
 
-class RequestsMaster(models.Model):
-    request_by = models.ForeignKey(UserMaster, on_delete=models.CASCADE)
-    approval_status = models.BooleanField(default=False)
+# class RequestsMaster(models.Model):
+#     request_by = models.ForeignKey(UserMaster, on_delete=models.CASCADE)
+#     approval_status = models.BooleanField(default=False)
 
-    def has_add_permission(self, request):
-        # Disable the ability to add new objects
-        return False
+#     def has_add_permission(self, request):
+#         # Disable the ability to add new objects
+#         return False
     
 class TourProgram(models.Model):
     employee = models.ForeignKey(UserMaster, on_delete=models.CASCADE, blank=False, related_name='employee_tourprograms')
@@ -152,6 +152,7 @@ class TourProgram(models.Model):
     from_area = models.ForeignKey(AreaMaster, on_delete=models.CASCADE, blank=False, related_name='from_area')
     to_area = models.ForeignKey(AreaMaster, on_delete=models.CASCADE, blank=False, related_name='to_area')
     submitted = models.BooleanField(default=False)
+    blocked = models.BooleanField(default=False)
 
 
 class DailyReporting(models.Model):
@@ -165,29 +166,29 @@ class DailyReporting(models.Model):
 class DoctorAdded(models.Model):
     daily_reporting = models.ForeignKey(DailyReporting, on_delete=models.CASCADE, related_name='daily_reporting')
     doctor = models.ForeignKey(DoctorMaster, on_delete = models.CASCADE)
-    doctor_time_in = models.CharField(max_length=10)
-    doctor_time_out = models.CharField(max_length=10)
+    doctor_time_in = models.TimeField()
+    doctor_time_out = models.TimeField()
     status = models.BooleanField(default=False)
 
 
 class ProductAdded(models.Model):
     product = models.ForeignKey(ProductMaster, on_delete=models.CASCADE)
     unit = models.ForeignKey(UnitMaster, on_delete=models.CASCADE)
-    quantity = models.CharField(max_length=100)
+    quantity = models.IntegerField()
     doctor = models.ForeignKey(DoctorMaster, on_delete=models.CASCADE)
     daily_reporting = models.ForeignKey(DailyReporting, on_delete=models.CASCADE)
 
 class GiftAdded(models.Model):
     gift = models.ForeignKey(GiftMaster, on_delete=models.CASCADE)
     unit = models.ForeignKey(UnitMaster, on_delete=models.CASCADE)
-    quantity = models.CharField(max_length=100)
+    quantity = models.IntegerField()
     doctor = models.ForeignKey(DoctorMaster, on_delete=models.CASCADE)
     daily_reporting = models.ForeignKey(DailyReporting, on_delete=models.CASCADE)
 
 class StockistAdded(models.Model):
     stockist = models.ForeignKey(StockistMaster, on_delete=models.CASCADE)
-    stockist_time_in = models.CharField(max_length=10)
-    stockist_time_out = models.CharField(max_length=10)
+    stockist_time_in = models.TimeField()
+    stockist_time_out = models.TimeField()
     daily_reporting = models.ForeignKey(DailyReporting, on_delete=models.CASCADE)
 
 

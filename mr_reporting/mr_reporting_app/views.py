@@ -5,8 +5,7 @@ from .models import UserMaster
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .models import *
-from datetime import datetime
-from django.db import transaction
+from datetime import date, datetime
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 
@@ -25,9 +24,13 @@ def login_page(request):
         # print("Username:", username)
         print("Email:", email)
         print("\nPassword:", password)
+        # print("User type:", request.user.is_superuser)
         user = authenticate(email=email, password=password)
         if user is None:
             messages.error(request, "Invalid Password")
+            return redirect('/login')
+        elif user.is_superuser:
+            messages.error(request, "Sorry!, you are not privileged to access this MR dashboard.")
             return redirect('/login')
         else:
             login(request, user)
@@ -51,7 +54,10 @@ def areamaster_add(request):
     return HttpResponse("Area Master")
 
 @login_required(login_url="/login")
-def daily_report_form(request, id):
+def daily_report_form(request):
+    user = request.user
+    print("User:", user)
+    id = user.id
     print(id)
     employee = UserMaster.objects.get(id=id)
     print(employee)
@@ -67,6 +73,12 @@ def daily_report_form(request, id):
         print("Month: " + month_name)
         showTable = True
 
+    current_date = datetime.now().date()
+    for tour_prgrm in tour_program:
+        if tour_prgrm.date_of_tour < current_date:
+            tour_prgrm.blocked = True
+            tour_prgrm.save()
+
     context = {
         'employee': employee,
         'employee_id':id,
@@ -75,6 +87,17 @@ def daily_report_form(request, id):
         'showTable': showTable
     }
     return render(request, 'daily_report_form.html' , context)
+
+@login_required(login_url="/login")
+def submit_form(request, tour_id):
+    if request.method == 'POST':
+        tour_program = TourProgram.objects.get(pk=tour_id)
+        tour_program.submitted = True
+        tour_program.save()
+
+    return redirect('daily_report_form')
+
+    
 
 @login_required(login_url="/login")
 def daily_report_form_tour(request, id, tour_id):
@@ -102,8 +125,6 @@ def daily_report_form_detail(request,id,tour_id):
     print("Hello")
     employee_id = id
     employee = UserMaster.objects.get(id=id)
-    # date = DailyReporting.objects.filter(employee_id=id).filter(date_of_tour=date).get().date_of_working
-    # tour_program = TourProgram.objects.filter(employee_id=id).filter(date_of_tour=date).get()
     tour_program = TourProgram.objects.get(id=tour_id)
     date = tour_program.date_of_tour
     from_area = tour_program.from_area
@@ -146,7 +167,7 @@ def daily_report_form_detail(request,id,tour_id):
     available_stockists = stockists.exclude(id__in=stockist_in_daily_reporting)
     stockists = available_stockists
 
-
+    showSubmitWarning = True
     
     if request.method == "POST":
         if 'doctor' in request.POST and 'doctor_arrival_time' in request.POST and 'doctor_departure_time' in request.POST:
@@ -154,21 +175,32 @@ def daily_report_form_detail(request,id,tour_id):
             time_in = request.POST.get('doctor_arrival_time')
             time_out = request.POST.get('doctor_departure_time')
             
-
             doctor = DoctorMaster.objects.get(id=int(doctor_name))
+
 
             print("Doc Name:", doctor, "Time in:", time_in, "Time out:", time_out)
             
             print("Daily Reporting:", daily_reporting)
-            data = DoctorAdded(
-                daily_reporting=daily_reporting,
-                doctor=doctor,
-                doctor_time_in=time_in,
-                doctor_time_out=time_out,
-                status = True
-            )
-            data.save()
             
+            # Convert time strings to datetime.time objects
+            time_in = datetime.strptime(time_in, "%H:%M").time()
+            time_out = datetime.strptime(time_out, "%H:%M").time()
+            if time_in > time_out:
+                print("Time in greater than time out")
+                messages.error(request,"Please provide correct time in and time out information.")
+            elif time_in == time_out:
+                print("Time in equal to time out")
+                messages.error(request,"Time in and Time out must be different.")
+            else:
+                
+                data = DoctorAdded(
+                    daily_reporting=daily_reporting,
+                    doctor=doctor,
+                    doctor_time_in=time_in,
+                    doctor_time_out=time_out,
+                    status = True
+                )
+                data.save()
             return redirect('daily_report_form_detail', id=id, tour_id=tour_id)
     
         if 'product' in request.POST and 'product_unit' in request.POST and 'product_qty' in request.POST:
@@ -176,7 +208,6 @@ def daily_report_form_detail(request,id,tour_id):
             unit_id = request.POST.get('product_unit')
             quantity = request.POST.get('product_qty')
             doctor_id = request.session.get('selected_doctor_id',None)
-
 
             product = ProductMaster.objects.get(id=int(product_id))
             unit = UnitMaster.objects.get(id=int(unit_id))
@@ -193,7 +224,6 @@ def daily_report_form_detail(request,id,tour_id):
                 daily_reporting=daily_reporting
             )
             data.save()
-
             return redirect('daily_report_form_detail', id=id, tour_id=tour_id)
         
         if 'gift' in request.POST and 'gift_unit' in request.POST and 'gift_qty' in request.POST:
@@ -216,7 +246,6 @@ def daily_report_form_detail(request,id,tour_id):
                 daily_reporting=daily_reporting
             )
             data.save()
-
             return redirect('daily_report_form_detail', id=id, tour_id=tour_id)
         
         if 'stockist' in request.POST and 'stockist_arrival_time' in request.POST and 'stockist_departure_time' in request.POST:
@@ -238,17 +267,47 @@ def daily_report_form_detail(request,id,tour_id):
             data.save()
             return redirect('daily_report_form_detail', id=id, tour_id=tour_id)
 
+    doctors_added = None
+    products_added = None
+    gifts_added = None
+    stockist_added = None
+
     daily_reporting_id = DailyReporting.objects.filter(employee_id=id).filter(date_of_working=date).get()
     doctors_added = DoctorAdded.objects.filter(daily_reporting_id=daily_reporting_id)
     print(doctors_added)
-    
+
+
     products_added = ProductAdded.objects.filter(daily_reporting_id=daily_reporting_id).filter(doctor_id=doctor_id)
     print(products_added)
+
+
     gifts_added = GiftAdded.objects.filter(daily_reporting_id=daily_reporting_id).filter(doctor_id=doctor_id)
     print(gifts_added)
+
+    
     stockist_added = StockistAdded.objects.filter(daily_reporting_id=daily_reporting_id)
     print(stockist_added)
+
+
+    doctorAdded = False
+    productAdded = False
+    giftAdded = False
+    stockistAdded = False
+    if DoctorAdded.objects.filter(daily_reporting_id=daily_reporting_id).exists():
+        doctorAdded = True
+
+    if ProductAdded.objects.filter(daily_reporting_id=daily_reporting_id).exists():
+        productAdded = True
+
+    if GiftAdded.objects.filter(daily_reporting_id=daily_reporting_id).exists():
+        giftAdded = True
+
+    if StockistAdded.objects.filter(daily_reporting_id=daily_reporting_id).exists():
+        stockistAdded = True
     
+    if doctorAdded and productAdded and giftAdded and stockistAdded:
+        showSubmitWarning = False
+
     context = {
         'employee': employee,
         'employee_id': employee_id,
@@ -266,7 +325,8 @@ def daily_report_form_detail(request,id,tour_id):
         'doctors_added': doctors_added,
         'products_added': products_added,
         'gifts_added': gifts_added,
-        'stockists_added': stockist_added
+        'stockists_added': stockist_added,
+        'showSubmitWarning': showSubmitWarning,
     }
     return render(request, 'daily_report_form_detail.html', context)
 

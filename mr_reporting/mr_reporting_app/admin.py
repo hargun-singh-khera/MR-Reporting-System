@@ -157,7 +157,7 @@ class RequestsMasterAdmin(admin.ModelAdmin):
 class TourProgramAdmin(admin.ModelAdmin):
     form = TourProgramForm
     list_display = ('employee', 'date_of_tour', 'from_area', 'to_area')
-    exclude = ('submitted',)
+    # exclude = ('submitted',)
     class Media:
         js = ('/static/js/dependent_dropdown.js',)
 
@@ -170,11 +170,11 @@ class TourProgramAdmin(admin.ModelAdmin):
 #     list_filter = ('employee', 'designation', 'date_of_working', 'doctor', 'product', 'gift', 'stockist')
 
     
-    def has_add_permission(self, request):
-        return False
+    # def has_add_permission(self, request):
+    #     return False
 
-    def has_change_permission(self, request, obj=None):
-        return False
+    # def has_change_permission(self, request, obj=None):
+    #     return False
 
     # def has_delete_permission(self, request, obj=None):
     #     return False
@@ -193,6 +193,10 @@ admin.site.register(DoctorMaster, DoctorMasterAdmin)
 admin.site.register(StockistMaster, StockisterMasterAdmin)
 admin.site.register(GiftMaster, GiftMasterAdmin)
 admin.site.register(UserAreaMapping, AreaMappingAdmin)
-admin.site.register(RequestsMaster, RequestsMasterAdmin)
+# admin.site.register(RequestsMaster, RequestsMasterAdmin)
 admin.site.register(TourProgram, TourProgramAdmin)
 admin.site.register(DailyReporting)
+admin.site.register(DoctorAdded)
+admin.site.register(ProductAdded)
+admin.site.register(GiftAdded)
+admin.site.register(StockistAdded)

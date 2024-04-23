@@ -1,6 +1,17 @@
 {% extends 'base.html' %}
 
+
 {% block body %}
+{% include 'header.html' %}
+
+{% if messages %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+  {% for message in messages %}
+    {{message}}
+  {% endfor %}
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
 
 <div class="container-fluid">
   <!-- <form method="POST">
@@ -9,31 +20,31 @@
       <div class="mb-3 row align-items-center">
         <label for="employeeName" class="form-label col-md-3">Employee Name</label>
         <div class="col-md-9">
-          <input class="form-control" id="employee_name" type="text" value="{{employee}}" disabled>
+          <input class="form-control" id="employee_name" type="text" value="{{employee}}" readonly>
           <input class="form-control" id="employee_name_hidden" name="employee_name" type="hidden" value="{{employee}}">
         </div>
       </div>
       <div class="mb-3 row align-items-center">
         <label for="employeeName" class="form-label col-md-3">Designation</label>
         <div class="col-md-9">
-            <input class="form-control" id="employee_designation" type="text" value="{{designation}}" disabled>
+            <input class="form-control" id="employee_designation" type="text" value="{{designation}}" readonly>
             <input class="form-control" id="employee_designation_hidden" name="employee_designation" type="hidden" value="{{designation}}">
         </div>
       </div>
       <div class="mb-3 row align-items-center">
         <div class="col-md-4">
             <label for="month" class="form-label">Date of Working</label>
-            <input class="form-control" id="date_of_working" type="text" value="{{date}}" disabled>
+            <input class="form-control" id="date_of_working" type="text" value="{{date}}" readonly>
             <input class="form-control" id="date_of_working_hidden" name="date_of_working" type="hidden" value="{{date}}">
         </div>
         <div class="col-md-4">
             <label for="month" class="form-label">Source Area</label>
-            <input class="form-control" id="source_area" type="text" value="{{source_area}}" disabled>
+            <input class="form-control" id="source_area" type="text" value="{{source_area}}" readonly>
             <input class="form-control" id="source_area_hidden" name="source_area" type="hidden" value="{{source_area}}" >
         </div>
         <div class="col-md-4">
             <label for="month" class="form-label">Destination Area</label>
-            <input class="form-control" id="destination_area" type="text" value="{{destination_area}}" disabled>
+            <input class="form-control" id="destination_area" type="text" value="{{destination_area}}" readonly>
             <input class="form-control" id="destination_area_hidden" name="destination_area" type="hidden" value="{{destination_area}}">
         </div>
       </div>
@@ -96,8 +107,8 @@
                     </td>
                     <th scope="row">{{ forloop.counter }}</th>
                     <td>{{ data.doctor }}</td>
-                    <td>{{ data.doctor_time_in }}</td>
-                    <td>{{ data.doctor_time_out }}</td>
+                    <td>{{ data.doctor_time_in|slice:":-3"|time:"g:i A" }}</td>
+                    <td>{{ data.doctor_time_out|slice:":-3"|time:"g:i A" }}</td>
                     <td>
                         <button class="btn btn-warning rounded-pill w-100" type="submit">Update</button>
                       
@@ -322,8 +333,56 @@
                 {% endif %}
           </div>
           <hr />
-          <button type="submit" class="btn btn-success w-100">Submit</button>
-        <!-- </form> -->
+          {% if showSubmitWarning %}
+          <!-- <p>Please fill the form</p> -->
+          <button type="button" class="btn btn-success w-100 rounded-pill" data-bs-toggle="modal" data-bs-target="#exampleModal2">Submit</button>
+          
+          <!-- <form method="POST" action="{% url 'submit_form' tour_id=tour_id %}">
+            {% csrf_token %} -->
+            {% else %}
+            <button type="button" class="btn btn-success w-100 rounded-pill" data-bs-toggle="modal" data-bs-target="#exampleModal">Submit</button>
+          <!-- </form> -->
+          {% endif %}
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Submission Alert</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to submit this entry?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
+          <form method="POST" action="{% url 'submit_form' tour_id=tour_id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success rounded-pill">Yes</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- Modal -->
+  <div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Warning</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          You must provide all the details before preceding for form submission.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Ok</button>
+        </div>
+      </div>
     </div>
   </div>
   <script>
