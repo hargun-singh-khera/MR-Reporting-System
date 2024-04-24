@@ -75,9 +75,10 @@ def daily_report_form(request):
 
     current_date = datetime.now().date()
     for tour_prgrm in tour_program:
-        if tour_prgrm.date_of_tour < current_date:
-            tour_prgrm.blocked = True
-            tour_prgrm.save()
+        if tour_prgrm.submitted == False:
+            if tour_prgrm.date_of_tour < current_date:
+                tour_prgrm.blocked = True
+                tour_prgrm.save()
 
     context = {
         'employee': employee,
@@ -141,7 +142,8 @@ def daily_report_form_detail(request,id,tour_id):
     gifts = GiftMaster.objects.all()
     units = UnitMaster.objects.all()
     products = ProductMaster.objects.all()
-    doctors = DoctorMaster.objects.filter(area_id=area_id)
+    # doctors = DoctorMaster.objects.filter(area_id=area_id)
+    doctors = DoctorMaster.objects.all()
     stockists = StockistMaster.objects.filter(area_id=area_id)
 
     daily_reporting = DailyReporting.objects.filter(date_of_working=date).get(employee_id=id)
@@ -149,9 +151,9 @@ def daily_report_form_detail(request,id,tour_id):
     daily_reporting_id = daily_reporting
 
 
-    doctors_in_daily_reporting = DoctorAdded.objects.filter(daily_reporting_id=daily_reporting_id).values_list('doctor__id', flat=True)
-    available_doctors = doctors.exclude(id__in=doctors_in_daily_reporting)
-    doctors = available_doctors
+    # doctors_in_daily_reporting = DoctorAdded.objects.filter(daily_reporting_id=daily_reporting_id).values_list('doctor__id', flat=True)
+    # available_doctors = doctors.exclude(id__in=doctors_in_daily_reporting)
+    # doctors = available_doctors
 
     doctor_id = request.session.get('selected_doctor_id')
     print("Session doctorid:", doctor_id)
@@ -256,17 +258,36 @@ def daily_report_form_detail(request,id,tour_id):
             stockist = StockistMaster.objects.get(id=int(stockist_id))
 
             print("Stockist:", stockist, "Time in:", time_in, "Time out:", time_out)
-
-            print("Daily Reporting:", daily_reporting)
-            data = StockistAdded(
-                stockist=stockist,
-                stockist_time_in=time_in,
-                stockist_time_out=time_out,
-                daily_reporting=daily_reporting,
-            )
-            data.save()
+            
+            
+            # Convert time strings to datetime.time objects
+            time_in = datetime.strptime(time_in, "%H:%M").time()
+            time_out = datetime.strptime(time_out, "%H:%M").time()
+            if time_in > time_out:
+                print("Time in greater than time out")
+                messages.error(request,"Please provide correct time in and time out information.")
+            elif time_in == time_out:
+                print("Time in equal to time out")
+                messages.error(request,"Time in and Time out must be different.")
+            else:
+                data = StockistAdded(
+                    stockist=stockist,
+                    stockist_time_in=time_in,
+                    stockist_time_out=time_out,
+                    daily_reporting=daily_reporting,
+                )
+                data.save()
             return redirect('daily_report_form_detail', id=id, tour_id=tour_id)
-
+        
+        if 'doctor_update' in request.POST:
+            print("hello 2")
+            doctor_update_id = request.POST.get('doctor_update')
+            print("Doctor_id:", doctor_update_id)
+            doctor_update = DoctorAdded.objects.filter(daily_reporting_id=daily_reporting_id).get(pk=doctor_update_id)
+            print("Doctor_update:", doctor_update)
+            return redirect('daily_report_form_detail', id=id, tour_id=tour_id)
+        
+    
     doctors_added = None
     products_added = None
     gifts_added = None
@@ -326,10 +347,16 @@ def daily_report_form_detail(request,id,tour_id):
         'products_added': products_added,
         'gifts_added': gifts_added,
         'stockists_added': stockist_added,
-        'showSubmitWarning': showSubmitWarning,
+        'showSubmitWarning': showSubmitWarning
     }
     return render(request, 'daily_report_form_detail.html', context)
 
+
+def update_doctor(request, id, tour_id, doc_id):
+    if request.method == 'POST':
+        print("Doctor Id", doc_id)
+        return HttpResponse(doc_id)
+        
 def daily_report_form_detail_delete_doctor(request, id, tour_id, pk):
     if request.method == 'POST':
         doctor = DoctorAdded.objects.get(pk=pk)

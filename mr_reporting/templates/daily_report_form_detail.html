@@ -64,7 +64,7 @@
           </thead>
               <tbody>
                     <tr>
-                      <td class="col-md-4">
+                      <td class="col-md-3">
                         <select id="doctor" name="doctor" class="form-select" aria-label="Default select example" required>
                             <option value="" selected disabled>Open this select menu</option>
                             {% for doctor in doctors %}
@@ -72,12 +72,12 @@
                             {% endfor %}
                           </select>
                       </td>
-                      <td><input type="time" class="form-control" id="doctor_arrival_time" name="doctor_arrival_time" required></td>
-                      <td><input type="time" class="form-control" id="doctor_departure_time" name="doctor_departure_time" required></td>
+                      <td class="col-md-3"><input type="time" class="form-control" id="doctor_arrival_time" name="doctor_arrival_time" required></td>
+                      <td class="col-md-3"><input type="time" class="form-control" id="doctor_departure_time" name="doctor_departure_time" required></td>
                       {% if doctors|length > 0 %}
-                      <td><button class="btn btn-primary rounded-pill w-100">Add Doctor</button></td>
+                      <td class="col-md-3"><button class="btn btn-primary rounded-pill w-100">Add Doctor</button></td>
                       {% else %}
-                      <td><button class="btn btn-primary rounded-pill w-100" disabled>Add Doctor</button></td>
+                      <td class="col-md-3"><button class="btn btn-primary rounded-pill w-100" disabled>Add Doctor</button></td>
                       {% endif %}
                     </tr>
                   </tbody>
@@ -87,12 +87,12 @@
               <table class="table table-striped">
                 <thead>
                   <tr>
-                    <th scope="col">Choice</th>
+                    <th scope="col"></th>
                     <th scope="col">S.No</th>
                     <th scope="col">Doctor Name</th>
                     <th scope="col">Time in</th>
                     <th scope="col">Time out</th>
-                    <th scope="col">Actions</th>
+                    <th scope="col">Action</th>
                     <th scope="col"></th>
                   </tr>
                 </thead>
@@ -106,14 +106,16 @@
                         </span>
                     </td>
                     <th scope="row">{{ forloop.counter }}</th>
-                    <td>{{ data.doctor }}</td>
-                    <td>{{ data.doctor_time_in|slice:":-3"|time:"g:i A" }}</td>
-                    <td>{{ data.doctor_time_out|slice:":-3"|time:"g:i A" }}</td>
-                    <td>
-                        <button class="btn btn-warning rounded-pill w-100" type="submit">Update</button>
-                      
+                    <td class="col-md-3">{{ data.doctor }}</td>
+                    <td class="col-md-3">{{ data.doctor_time_in|slice:":-3"|time:"g:i A" }}</td>
+                    <td class="col-md-3">{{ data.doctor_time_out|slice:":-3"|time:"g:i A" }}</td>
+                    <td class="col-md-1">
+                      <!-- <form method="POST">
+                        {% csrf_token %} -->
+                        <button class="btn btn-warning rounded-pill w-100" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal_{{forloop.counter}}">Update</button>
+                      <!-- </form> -->
                     </td>
-                    <td>
+                    <td class="col-md-1">
                       <form method="POST" action="{% url 'daily_report_form_detail_delete_doctor' id=employee_id tour_id=tour_id pk=data.id %}">
                         {% csrf_token %}
                         <button class="btn btn-danger rounded-pill w-100" type="submit">Delete</button>
@@ -140,7 +142,7 @@
                   </thead>
                   <tbody>
                     <tr>
-                      <td>
+                      <td class="col-md-3">
                         <select id="product" name="product" class="form-select" aria-label="Default select example" disabled required>
                             <option value="" selected disabled>Open this select menu</option>
                             {% for product in products %}
@@ -148,7 +150,7 @@
                             {% endfor %}
                           </select>
                       </td>
-                      <td>
+                      <td class="col-md-3">
                         <select id="product_unit" name="product_unit" class="form-select" aria-label="Default select example" disabled required>
                             <option value="" selected disabled>Open this select menu</option>
                             {% for unit in units %}
@@ -156,10 +158,10 @@
                             {% endfor %}
                           </select>
                       </td>
-                      <td>
+                      <td class="col-md-3">
                         <input type="number" class="form-control" id="product_qty" name="product_qty" aria-describedby="quantity" min="1" disabled required>
                       </td>
-                      <td><button id="product_btn" class="btn btn-primary rounded-pill w-100" disabled>Add Product</button></td>
+                      <td class="col-md-3"><button id="product_btn" class="btn btn-primary rounded-pill w-100" disabled>Add Product</button></td>
                     </tr>
                   </tbody>
                 </table>
@@ -180,11 +182,13 @@
                     {% for data in products_added %}
                     <tr>
                       <th scope="row">{{ forloop.counter }}</th>
-                      <td>{{ data.product }}</td>
-                      <td>{{ data.unit }}</td>
-                      <td>{{ data.quantity }}</td>
-                      <td><button class="btn btn-warning rounded-pill w-100" type="button">Update</button></td>
-                      <td>
+                      <td class="col-md-3">{{ data.product }}</td>
+                      <td class="col-md-3">{{ data.unit }}</td>
+                      <td class="col-md-3">{{ data.quantity }}</td>
+                      <td class="col-md-1">
+                        <button class="btn btn-warning rounded-pill w-100" type="button">Update</button>
+                      </td>
+                      <td class="col-md-1">
                         <form method="POST" action="{% url 'daily_report_form_detail_delete_product' id=employee_id tour_id=tour_id pk=data.id %}">
                           {% csrf_token %}
                           <button class="btn btn-danger rounded-pill w-100" type="submit">Delete</button>
@@ -211,7 +215,7 @@
                   </thead>
                   <tbody>
                     <tr>
-                      <td>
+                      <td class="col-md-3">
                         <select id="gift" name="gift" class="form-select" aria-label="Default select example" disabled required>
                             <option value="" selected disabled>Open this select menu</option>
                             {% for gift in gifts %}
@@ -219,7 +223,7 @@
                             {% endfor %}
                           </select>
                       </td>
-                      <td>
+                      <td class="col-md-3">
                         <select id="gift_unit" name="gift_unit" class="form-select" aria-label="Default select example" disabled required>
                             <option value="" selected disabled>Open this select menu</option>
                             {% for unit in units %}
@@ -227,10 +231,10 @@
                             {% endfor %}
                           </select>
                       </td>
-                      <td>
+                      <td class="col-md-3">
                         <input type="number" class="form-control" id="gift_qty" name="gift_qty" aria-describedby="quantity" min="1" disabled required>
                       </td>
-                      <td><button id="gift_btn" class="btn btn-primary rounded-pill w-100" disabled>Add Gift</button></td>
+                      <td class="col-md-3"><button id="gift_btn" class="btn btn-primary rounded-pill w-100" disabled>Add Gift</button></td>
                     </tr>
                   </tbody>
                 </table>
@@ -251,11 +255,13 @@
                     {% for data in gifts_added %}
                     <tr>
                       <th scope="row">{{ forloop.counter }}</th>
-                      <td>{{ data.gift }}</td>
-                      <td>{{ data.unit }}</td>
-                      <td>{{ data.quantity }}</td>
-                      <td><button class="btn btn-warning rounded-pill w-100" type="button">Update</button></td>
-                      <td>
+                      <td class="col-md-3">{{ data.gift }}</td>
+                      <td class="col-md-3">{{ data.unit }}</td>
+                      <td class="col-md-3">{{ data.quantity }}</td>
+                      <td class="col-md-1">
+                        <button class="btn btn-warning rounded-pill w-100" type="button">Update</button>
+                      </td>
+                      <td class="col-md-1">
                         <form method="POST" action="{% url 'daily_report_form_detail_delete_gift' id=employee_id tour_id=tour_id pk=data.id %}">
                           {% csrf_token %}
                           <button class="btn btn-danger rounded-pill w-100" type="submit">Delete</button>
@@ -283,7 +289,7 @@
                   </thead>
                   <tbody>
                     <tr>
-                      <td class="col-md-4">
+                      <td class="col-md-3">
                         <select id="stockist" name="stockist" class="form-select" aria-label="Default select example" required>
                             <option value="" selected disabled>Open this select menu</option>
                             {% for stockist in stockists %}
@@ -291,9 +297,9 @@
                             {% endfor %}
                           </select>
                       </td>
-                      <td><input type="time" class="form-control" id="stockist_arrival_time" name="stockist_arrival_time" required></td>
-                      <td><input type="time" class="form-control" id="stockist_departure_time" name="stockist_departure_time" required></td>
-                      <td><button id="stockist_btn" class="btn btn-primary rounded-pill w-100">Add Stockist</button></td>
+                      <td class="col-md-3"><input type="time" class="form-control" id="stockist_arrival_time" name="stockist_arrival_time" required></td>
+                      <td class="col-md-3"><input type="time" class="form-control" id="stockist_departure_time" name="stockist_departure_time" required></td>
+                      <td class="col-md-3"><button id="stockist_btn" class="btn btn-primary rounded-pill w-100">Add Stockist</button></td>
                     </tr>
                   </tbody>
                 </table>
@@ -314,13 +320,13 @@
                     {% for data in stockists_added %}
                     <tr>
                       <th scope="row">{{ forloop.counter }}</th>
-                      <td>{{ data.stockist }}</td>
-                      <td>{{ data.stockist_time_in }}</td>
-                      <td>{{ data.stockist_time_out }}</td>
-                      <td>
+                      <td class="col-md-3">{{ data.stockist }}</td>
+                      <td class="col-md-3">{{ data.stockist_time_in|slice:":-3"|time:"g:i A" }}</td>
+                      <td class="col-md-3">{{ data.stockist_time_out|slice:":-3"|time:"g:i A" }}</td>
+                      <td class="col-md-1">
                           <button class="btn btn-warning rounded-pill w-100" type="submit">Update</button>
                       </td>
-                      <td>
+                      <td class="col-md-1">
                         <form method="POST" action="{% url 'daily_report_form_detail_delete_stockist' id=employee_id tour_id=tour_id pk=data.id %}">
                           {% csrf_token %}
                           <button class="btn btn-danger rounded-pill w-100" type="submit">Delete</button>
@@ -346,7 +352,7 @@
     </div>
   </div>
 
-  <!-- Modal -->
+  <!-- Modal 1-->
   <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -368,7 +374,7 @@
     </div>
   </div>
 
-    <!-- Modal -->
+    <!-- Modal 2-->
   <div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -385,6 +391,49 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal 3-->
+  
+  {% for data in doctors_added %}
+    <div class="modal fade" id="exampleModal_{{forloop.counter}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog ">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Update Details</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div>
+              <h6>Doctor Name</h6>
+              <!-- <input type="text" name="" id="" value="{{data.doctor_id}}"> -->
+              <select id="doctor" name="doctor" class="form-select" aria-label="Default select example" required>
+                <option value="{{ data.doctor_id }}" selected disabled>{{ data.doctor.doctor_name}}</option>
+                {% for doctor in doctors %}
+                  <option value="{{doctor.id}}">{{doctor.doctor_name}}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="my-3">
+              <h6>Time in</h6>
+              <input type="time" class="form-control" id="doctor_arrival_time" name="doctor_arrival_time" value="{{ data.doctor_time_in|time:'H:i'}}" required>
+            </div>
+            <div class="my-3">
+              <h6>Time out</h6>
+              <input type="time" class="form-control" id="doctor_departure_time" name="doctor_departure_time" value="{{data.doctor_time_out|time:'H:i'}}" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
+            <form method="POST">
+              {% csrf_token %}
+              <button type="button" class="btn btn-primary rounded-pill">Save changes</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+    
   <script>
     
     function getCurrentUrl() {
