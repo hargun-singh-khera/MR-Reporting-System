@@ -354,8 +354,93 @@ def daily_report_form_detail(request,id,tour_id):
 
 def update_doctor(request, id, tour_id, doc_id):
     if request.method == 'POST':
-        print("Doctor Id", doc_id)
-        return HttpResponse(doc_id)
+        tour_program = TourProgram.objects.get(id=tour_id)
+        date = tour_program.date_of_tour
+        daily_reporting_id = DailyReporting.objects.filter(employee_id=id).filter(date_of_working=date).get().id
+        print("Daily reporting id:", daily_reporting_id)
+        doctor_update = DoctorAdded.objects.filter(daily_reporting_id=daily_reporting_id).get(doctor_id=doc_id)
+        # doctor_update_id = doctor_update.id
+        doctor = request.POST.get('doctor')
+        time_in = request.POST.get('doctor_arrival_time')
+        time_out = request.POST.get('doctor_departure_time')
+
+        doctor = DoctorMaster.objects.get(id=int(doctor))
+
+        print("Doctor:", doctor, "Time in:", time_in, "Time out:", time_out)
+
+        print("Doctor Update:", doctor_update)
+
+        # Convert time strings to datetime.time objects
+        time_in = datetime.strptime(time_in, "%H:%M").time()
+        time_out = datetime.strptime(time_out, "%H:%M").time()
+        if time_in > time_out:
+            print("Time in greater than time out")
+            messages.error(request,"Please provide correct time in and time out information.")
+        elif time_in == time_out:
+            print("Time in equal to time out")
+            messages.error(request,"Time in and Time out must be different.")
+        else:
+            doctor_update.doctor = doctor
+            doctor_update.doctor_time_in = time_in
+            doctor_update.doctor_time_out = time_out
+            doctor_update.save()
+            pass
+
+        return redirect('daily_report_form_detail', id=id, tour_id=tour_id)
+    
+def update_product(request, id, tour_id, product_id):
+    if request.method == 'POST':
+        tour_program = TourProgram.objects.get(id=tour_id)
+        date = tour_program.date_of_tour
+        daily_reporting_id = DailyReporting.objects.filter(employee_id=id).filter(date_of_working=date).get().id
+        print("Daily reporting id:", daily_reporting_id)
+        product_update = ProductAdded.objects.filter(daily_reporting_id=daily_reporting_id).get(product_id=product_id)
+        
+        product = request.POST.get('product')
+        product_unit = request.POST.get('product_unit')
+        product_qty = request.POST.get('product_qty')
+
+        product = ProductMaster.objects.get(id=int(product))
+        product_unit = UnitMaster.objects.get(id=int(product_unit))
+
+        print("Product:", product, "Unit:", product_unit, "Quantity:", product_qty)
+
+        print("Product Update:", product_update)
+
+        product_update.product = product
+        product_update.unit = product_unit
+        product_update.quantity = product_qty
+        product_update.save()
+
+        return redirect('daily_report_form_detail', id=id, tour_id=tour_id)
+    
+
+def update_gift(request, id, tour_id, gift_id):
+    if request.method == 'POST':
+        tour_program = TourProgram.objects.get(id=tour_id)
+        date = tour_program.date_of_tour
+        daily_reporting_id = DailyReporting.objects.filter(employee_id=id).filter(date_of_working=date).get().id
+        print("Daily reporting id:", daily_reporting_id)
+        gift_update = GiftAdded.objects.filter(daily_reporting_id=daily_reporting_id).get(gift_id=gift_id)
+        
+        gift = request.POST.get('gift')
+        gift_unit = request.POST.get('gift_unit')
+        gift_qty = request.POST.get('gift_qty')
+
+        gift = GiftMaster.objects.get(id=int(gift))
+        gift_unit = UnitMaster.objects.get(id=int(gift_unit))
+
+        print("Gift:", gift, "Unit:", gift_unit, "Quantity:", gift_qty)
+
+        print("Gift Update:", gift_update)
+
+        gift_update.gift = gift
+        gift_update.unit = gift_unit
+        gift_update.quantity = gift_qty
+        gift_update.save()
+
+        return redirect('daily_report_form_detail', id=id, tour_id=tour_id)
+
         
 def daily_report_form_detail_delete_doctor(request, id, tour_id, pk):
     if request.method == 'POST':

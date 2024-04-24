@@ -110,10 +110,7 @@
                     <td class="col-md-3">{{ data.doctor_time_in|slice:":-3"|time:"g:i A" }}</td>
                     <td class="col-md-3">{{ data.doctor_time_out|slice:":-3"|time:"g:i A" }}</td>
                     <td class="col-md-1">
-                      <!-- <form method="POST">
-                        {% csrf_token %} -->
-                        <button class="btn btn-warning rounded-pill w-100" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal_{{forloop.counter}}">Update</button>
-                      <!-- </form> -->
+                      <button class="btn btn-warning rounded-pill w-100" type="button" data-bs-toggle="modal" data-bs-target="#doctorModal_{{forloop.counter}}">Update</button>
                     </td>
                     <td class="col-md-1">
                       <form method="POST" action="{% url 'daily_report_form_detail_delete_doctor' id=employee_id tour_id=tour_id pk=data.id %}">
@@ -161,7 +158,7 @@
                       <td class="col-md-3">
                         <input type="number" class="form-control" id="product_qty" name="product_qty" aria-describedby="quantity" min="1" disabled required>
                       </td>
-                      <td class="col-md-3"><button id="product_btn" class="btn btn-primary rounded-pill w-100" disabled>Add Product</button></td>
+                      <td class="col-md-3"><button id="product_btn" class="btn btn-primary rounded-pill w-100" data-bs-toggle="modal" data-bs-target="#productModal_{{forloop.counter}}" disabled>Add Product</button></td>
                     </tr>
                   </tbody>
                 </table>
@@ -186,7 +183,7 @@
                       <td class="col-md-3">{{ data.unit }}</td>
                       <td class="col-md-3">{{ data.quantity }}</td>
                       <td class="col-md-1">
-                        <button class="btn btn-warning rounded-pill w-100" type="button">Update</button>
+                        <button class="btn btn-warning rounded-pill w-100" type="button" data-bs-toggle="modal" data-bs-target="#productModal_{{forloop.counter}}">Update</button>
                       </td>
                       <td class="col-md-1">
                         <form method="POST" action="{% url 'daily_report_form_detail_delete_product' id=employee_id tour_id=tour_id pk=data.id %}">
@@ -259,7 +256,7 @@
                       <td class="col-md-3">{{ data.unit }}</td>
                       <td class="col-md-3">{{ data.quantity }}</td>
                       <td class="col-md-1">
-                        <button class="btn btn-warning rounded-pill w-100" type="button">Update</button>
+                        <button class="btn btn-warning rounded-pill w-100" type="button" data-bs-toggle="modal" data-bs-target="#giftModal_{{forloop.counter}}">Update</button>
                       </td>
                       <td class="col-md-1">
                         <form method="POST" action="{% url 'daily_report_form_detail_delete_gift' id=employee_id tour_id=tour_id pk=data.id %}">
@@ -392,10 +389,12 @@
     </div>
   </div>
 
-  <!-- Modal 3-->
+  <!-- Doctor Modal -->
   
   {% for data in doctors_added %}
-    <div class="modal fade" id="exampleModal_{{forloop.counter}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <form method="POST" action="{% url 'update_doctor' id=employee_id tour_id=tour_id doc_id=data.doctor_id %}">
+    {% csrf_token %}
+    <div class="modal fade" id="doctorModal_{{forloop.counter}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog ">
         <div class="modal-content">
           <div class="modal-header">
@@ -405,9 +404,8 @@
           <div class="modal-body">
             <div>
               <h6>Doctor Name</h6>
-              <!-- <input type="text" name="" id="" value="{{data.doctor_id}}"> -->
               <select id="doctor" name="doctor" class="form-select" aria-label="Default select example" required>
-                <option value="{{ data.doctor_id }}" selected disabled>{{ data.doctor.doctor_name}}</option>
+                <option value="{{ data.doctor_id }}" {% if data.doctor_id in doctors %}selected{% endif %} disabled>{{ data.doctor.doctor_name}}</option>
                 {% for doctor in doctors %}
                   <option value="{{doctor.id}}">{{doctor.doctor_name}}</option>
                 {% endfor %}
@@ -424,16 +422,107 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
-            <form method="POST">
-              {% csrf_token %}
-              <button type="button" class="btn btn-primary rounded-pill">Save changes</button>
-            </form>
+            <button type="submit" class="btn btn-primary rounded-pill">Save changes</button>
           </div>
         </div>
       </div>
     </div>
+  </form>
   {% endfor %}
     
+
+  <!-- Product Modal -->
+  
+  {% for data in products_added %}
+  <form method="POST" action="{% url 'update_product' id=employee_id tour_id=tour_id product_id=data.product_id %}">
+    {% csrf_token %}
+    <div class="modal fade" id="productModal_{{forloop.counter}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog ">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Update Details</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div>
+              <h6>Product Name</h6>
+              <select id="product" name="product" class="form-select" aria-label="Default select example" required>
+                <option value="{{ data.product_id }}" {% if data.product_id in products %}selected{% endif %} disabled>{{ data.product.product}}</option>
+                {% for product in products %}
+                  <option value="{{product.id}}">{{product.product}}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="my-3">
+              <h6>Unit</h6>
+              <select id="product_unit" name="product_unit" class="form-select" aria-label="Default select example" required>
+                <option value="{{ data.unit_id }}" {% if data.unit_id in units %}selected{% endif %} disabled>{{ data.unit.unit }}</option>
+                {% for unit in units %}
+                  <option value="{{unit.id}}">{{unit.unit}}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="my-3">
+              <h6>Quantity</h6>
+              <input type="number" class="form-control" id="product_qty" name="product_qty" value="{{ data.quantity}}" aria-describedby="quantity" min="1" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary rounded-pill">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  {% endfor %}
+
+  <!-- Gift Modal -->
+  
+  {% for data in gifts_added %}
+  <form method="POST" action="{% url 'update_gift' id=employee_id tour_id=tour_id gift_id=data.gift_id %}">
+    {% csrf_token %}
+    <div class="modal fade" id="giftModal_{{forloop.counter}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog ">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Update Details</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div>
+              <h6>Gift Name</h6>
+              <select id="gift" name="gift" class="form-select" aria-label="Default select example" required>
+                <option value="{{ data.gift_id }}" {% if data.gift_id in gifts %}selected{% endif %} disabled>{{ data.gift.gift}}</option>
+                {% for gift in gifts %}
+                  <option value="{{gift.id}}">{{gift.gift_name}}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="my-3">
+              <h6>Unit</h6>
+              <select id="gift_unit" name="gift_unit" class="form-select" aria-label="Default select example" required>
+                <option value="{{ data.unit_id }}" {% if data.unit_id in units %}selected{% endif %} disabled>{{ data.unit.unit }}</option>
+                {% for unit in units %}
+                  <option value="{{unit.id}}">{{unit.unit}}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="my-3">
+              <h6>Quantity</h6>
+              <input type="number" class="form-control" id="gift_qty" name="gift_qty" value="{{ data.quantity}}" aria-describedby="quantity" min="1" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary rounded-pill">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  {% endfor %}
+
   <script>
     
     function getCurrentUrl() {
