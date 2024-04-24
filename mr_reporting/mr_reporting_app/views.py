@@ -440,6 +440,42 @@ def update_gift(request, id, tour_id, gift_id):
         gift_update.save()
 
         return redirect('daily_report_form_detail', id=id, tour_id=tour_id)
+    
+
+def update_stockist(request, id, tour_id, stockist_id):
+    if request.method == 'POST':
+        tour_program = TourProgram.objects.get(id=tour_id)
+        date = tour_program.date_of_tour
+        daily_reporting_id = DailyReporting.objects.filter(employee_id=id).filter(date_of_working=date).get().id
+        print("Daily reporting id:", daily_reporting_id)
+        stockist_update = StockistAdded.objects.filter(daily_reporting_id=daily_reporting_id).get(stockist_id=stockist_id)
+        
+        stockist = request.POST.get('stockist')
+        time_in = request.POST.get('stockist_arrival_time')
+        time_out = request.POST.get('stockist_departure_time')
+
+        stockist = StockistMaster.objects.get(id=int(stockist))
+
+        print("Stockist:", stockist, "Time in:", time_in, "Time out:", time_out)
+
+        print("Stockist Update:", stockist_update)
+
+        # Convert time strings to datetime.time objects
+        time_in = datetime.strptime(time_in, "%H:%M").time()
+        time_out = datetime.strptime(time_out, "%H:%M").time()
+        if time_in > time_out:
+            print("Time in greater than time out")
+            messages.error(request,"Please provide correct time in and time out information.")
+        elif time_in == time_out:
+            print("Time in equal to time out")
+            messages.error(request,"Time in and Time out must be different.")
+        else:
+            stockist_update.stockist = stockist
+            stockist_update.stockist_time_in = time_in
+            stockist_update.stockist_time_out = time_out
+            stockist_update.save()
+
+        return redirect('daily_report_form_detail', id=id, tour_id=tour_id)
 
         
 def daily_report_form_detail_delete_doctor(request, id, tour_id, pk):

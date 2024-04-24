@@ -321,7 +321,7 @@
                       <td class="col-md-3">{{ data.stockist_time_in|slice:":-3"|time:"g:i A" }}</td>
                       <td class="col-md-3">{{ data.stockist_time_out|slice:":-3"|time:"g:i A" }}</td>
                       <td class="col-md-1">
-                          <button class="btn btn-warning rounded-pill w-100" type="submit">Update</button>
+                          <button class="btn btn-warning rounded-pill w-100" type="submit" data-bs-toggle="modal" data-bs-target="#stockistModal_{{forloop.counter}}">Update</button>
                       </td>
                       <td class="col-md-1">
                         <form method="POST" action="{% url 'daily_report_form_detail_delete_stockist' id=employee_id tour_id=tour_id pk=data.id %}">
@@ -511,6 +511,47 @@
             <div class="my-3">
               <h6>Quantity</h6>
               <input type="number" class="form-control" id="gift_qty" name="gift_qty" value="{{ data.quantity}}" aria-describedby="quantity" min="1" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary rounded-pill">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  {% endfor %}
+
+  <!-- Stockist Modal -->
+  
+  {% for data in stockists_added %}
+  <form method="POST" action="{% url 'update_stockist' id=employee_id tour_id=tour_id stockist_id=data.stockist_id %}">
+    {% csrf_token %}
+    <div class="modal fade" id="stockistModal_{{forloop.counter}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog ">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Update Details</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div>
+              <h6>Stockist Name</h6>
+              <select id="stockist" name="stockist" class="form-select" aria-label="Default select example" required>
+                <option value="{{ data.stockist_id }}" {% if data.stockist_id in stockists %}selected{% endif %}>{{ data.stockist.stockist_name}}</option>
+                {% for stockist in stockists %}
+                  <option value="{{stockist.id}}">{{stockist.stockist_name}}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="my-3">
+              <h6>Time in</h6>
+              <input type="time" class="form-control" id="stockist_arrival_time" name="stockist_arrival_time" value="{{ data.stockist_time_in|time:'H:i'}}" required>
+            </div>
+            <div class="my-3">
+              <h6>Time out</h6>
+              <input type="time" class="form-control" id="stockist_departure_time" name="stockist_departure_time" value="{{ data.stockist_time_out|time:'H:i'}}" required>
             </div>
           </div>
           <div class="modal-footer">
