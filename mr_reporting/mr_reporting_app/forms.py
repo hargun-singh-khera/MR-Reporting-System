@@ -1,6 +1,8 @@
 from django import forms
 from .models import *
 from django.contrib.admin.widgets import FilteredSelectMultiple
+from django.contrib.auth.forms import UserCreationForm
+from django.core.exceptions import ValidationError
 
 class CustomAreaMapping(forms.ModelForm):
     user = forms.ModelChoiceField(
@@ -101,6 +103,43 @@ class AreaForm(forms.ModelForm):
             self.fields['state'].queryset = StateMaster.objects.all()
             self.fields['city'].queryset = CityMaster.objects.all()  # Reset city queryset
 
+
+class CustomUserCreationForm(UserCreationForm):
+    # country = forms.ModelChoiceField(
+    #     queryset=CountryMaster.objects.all(),
+    #     widget=forms.Select(attrs={'id': 'id_country'}),
+    # )
+    # state = forms.ModelChoiceField(
+    #     queryset=StateMaster.objects.none(),
+    #     widget=forms.Select(attrs={'id': 'id_state'}),
+    # )
+    # city = forms.ModelChoiceField(
+    #     queryset=CityMaster.objects.none(),
+    #     widget=forms.Select(attrs={'id': 'id_city'}),
+    # )
+    
+    class Meta:
+        model = UserMaster
+        fields = '__all__'
+
+    def clean_username(self):
+        # Override the clean_username method to remove uniqueness validation
+        return self.cleaned_data["username"]
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        dob = cleaned_data.get('date_of_birth')
+        doj = cleaned_data.get('date_of_joining')
+
+        # Check if DOB and DOJ are the same
+        if dob and doj and dob == doj:
+            raise ValidationError("Date of birth and date of joining cannot be the same.")
+
+        # Check if DOB year is greater than DOJ year
+        if dob and doj and dob.year >= doj.year:
+            raise ValidationError("Date of birth year should be less than date of joining year.")
+        
+        return cleaned_data
 
 class TourProgramForm(forms.ModelForm):
     employee = forms.ModelChoiceField(

@@ -3,11 +3,9 @@ from mr_reporting_app.models import *
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
-from django.core.exceptions import ValidationError
 from django.forms import TextInput, Textarea
 from django.core.mail import send_mail
 from django.conf import settings
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from .forms import *
 from .models import *
@@ -58,11 +56,6 @@ class AreaMasterAdmin(admin.ModelAdmin):
 #     list_display = ('designation',)
 
 
-class CustomUserCreationForm(UserCreationForm):
-    class Meta:
-        model = UserMaster
-        fields = '__all__'
-
 class UserMasterAdmin(admin.ModelAdmin):
     form = CustomUserCreationForm
     model = UserMaster
@@ -82,17 +75,24 @@ class UserMasterAdmin(admin.ModelAdmin):
          ),
     )
 
-    def save_model(self, request, obj, form, change):
-        email = form.cleaned_data.get('email')
-        if UserMaster.objects.filter(email=email).exists():
-            raise("Email already exists")
-        if "_addanother" in request.POST:
-            self.send_email_to_user(request, form, email)
-            # pass
-        elif "_save" in request.POST:
-            self.send_email_to_user(request, form, email)
-            # pass
-        super().save_model(request, obj, form, change)
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        if obj:
+            # Exclude the current user from the choices in the "under" field
+            form.base_fields['under'].queryset = form.base_fields['under'].queryset.exclude(id=obj.id)
+        return form
+
+    # def save_model(self, request, obj, form, change):
+    #     if not change:
+    #         email = form.cleaned_data.get('email')
+    #         username = form.cleaned_data.get('username')
+    #         if UserMaster.objects.filter(email=email).exists():
+    #             raise ValidationError("Email already exists")
+    #         if UserMaster.objects.filter(username=username).exists():
+    #             raise ValidationError("Username already exists")
+    #         if "_addanother" in request.POST or "_save" in request.POST:
+    #             self.send_email_to_user(request, form, email)
+    #         super().save_model(request, obj, form, change)
         
     def send_email_to_user(self, request, form, email):
         print("Email sent")
@@ -113,6 +113,7 @@ class UserMasterAdmin(admin.ModelAdmin):
         from_email = settings.EMAIL_HOST_USER
         recipient_list = [email]
         send_mail(subject, message, from_email, recipient_list, html_message=message)
+
         
     
 class UnitMasterAdmin(admin.ModelAdmin):

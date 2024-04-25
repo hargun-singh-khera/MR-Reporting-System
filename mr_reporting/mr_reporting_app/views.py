@@ -142,8 +142,8 @@ def daily_report_form_detail(request,id,tour_id):
     gifts = GiftMaster.objects.all()
     units = UnitMaster.objects.all()
     products = ProductMaster.objects.all()
-    # doctors = DoctorMaster.objects.filter(area_id=area_id)
-    doctors = DoctorMaster.objects.all()
+    doctors = DoctorMaster.objects.filter(area_id=area_id)
+    # doctors = DoctorMaster.objects.all()
     stockists = StockistMaster.objects.filter(area_id=area_id)
 
     daily_reporting = DailyReporting.objects.filter(date_of_working=date).get(employee_id=id)
@@ -151,17 +151,18 @@ def daily_report_form_detail(request,id,tour_id):
     daily_reporting_id = daily_reporting
 
 
-    # doctors_in_daily_reporting = DoctorAdded.objects.filter(daily_reporting_id=daily_reporting_id).values_list('doctor__id', flat=True)
-    # available_doctors = doctors.exclude(id__in=doctors_in_daily_reporting)
-    # doctors = available_doctors
+    doctors_in_daily_reporting = DoctorAdded.objects.filter(daily_reporting_id=daily_reporting_id).values_list('doctor__id', flat=True)
+    available_doctors = doctors.exclude(id__in=doctors_in_daily_reporting)
+    doctors = available_doctors
 
     doctor_id = request.session.get('selected_doctor_id')
     print("Session doctorid:", doctor_id)
-    products_in_daily_reporting = ProductAdded.objects.filter(doctor_id=doctor_id).values_list('product__id', flat=True)
+
+    products_in_daily_reporting = ProductAdded.objects.filter(daily_reporting_id=daily_reporting_id).values_list('product__id', flat=True)
     available_products = products.exclude(id__in=products_in_daily_reporting)
     products = available_products
 
-    gifts_in_daily_reporting = GiftAdded.objects.filter(doctor_id=doctor_id).values_list('gift__id', flat=True)
+    gifts_in_daily_reporting = GiftAdded.objects.filter(daily_reporting_id=daily_reporting_id).values_list('gift__id', flat=True)
     available_gifts = gifts.exclude(id__in=gifts_in_daily_reporting)
     gifts = available_gifts
 

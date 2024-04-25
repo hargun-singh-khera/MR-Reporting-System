@@ -7,6 +7,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import Permission
 
+
 # Create your models here.
 class CountryMaster(models.Model):
     country = models.CharField(max_length=100, blank=True, null=True, unique=True)
@@ -75,6 +76,8 @@ class CustomUserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, username, password, **other_fields):
+        # Exclude ForeignKey fields for superuser creation
+        
         other_fields.setdefault('is_staff', True)
         other_fields.setdefault('is_superuser', True)
         # other_fields.setdefault('is_active', True)
@@ -87,9 +90,12 @@ class CustomUserManager(BaseUserManager):
 
 class UserMaster(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=255, blank=False)
-    username = models.CharField(max_length=60, unique=True)
+    username = models.CharField(max_length=60, unique=False)
     email = models.EmailField(unique=True)
 
+    # country = models.ForeignKey(CountryMaster, on_delete=models.CASCADE, null=False, blank=False)
+    # state = models.ForeignKey(StateMaster, on_delete=models.CASCADE, null=False)
+    # city = models.ForeignKey(CityMaster, on_delete=models.CASCADE, null=False)
     area = models.ForeignKey(AreaMaster, on_delete = models.CASCADE, null=True, blank=False)
     designation = models.ForeignKey(Group, on_delete = models.CASCADE, null=True)
     date_of_birth = models.DateField(blank=False, null=True)

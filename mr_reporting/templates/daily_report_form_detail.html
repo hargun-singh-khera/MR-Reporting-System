@@ -110,12 +110,12 @@
                     <td class="col-md-3">{{ data.doctor_time_in|slice:":-3"|time:"g:i A" }}</td>
                     <td class="col-md-3">{{ data.doctor_time_out|slice:":-3"|time:"g:i A" }}</td>
                     <td class="col-md-1">
-                      <button class="btn btn-warning rounded-pill w-100" type="button" data-bs-toggle="modal" data-bs-target="#doctorModal_{{forloop.counter}}">Update</button>
+                      <button class="btn btn-warning rounded-pill w-100" type="button" data-bs-toggle="modal" data-bs-target="#doctorModal_{{data.doctor_id}}">Update</button>
                     </td>
                     <td class="col-md-1">
                       <form method="POST" action="{% url 'daily_report_form_detail_delete_doctor' id=employee_id tour_id=tour_id pk=data.id %}">
                         {% csrf_token %}
-                        <button class="btn btn-danger rounded-pill w-100" type="submit">Delete</button>
+                        <button class="btn btn-danger rounded-pill w-100" type="submit" onclick="deleteCache()">Delete</button>
                       </form>
                     </td>
                   </tr>
@@ -183,7 +183,7 @@
                       <td class="col-md-3">{{ data.unit }}</td>
                       <td class="col-md-3">{{ data.quantity }}</td>
                       <td class="col-md-1">
-                        <button class="btn btn-warning rounded-pill w-100" type="button" data-bs-toggle="modal" data-bs-target="#productModal_{{forloop.counter}}">Update</button>
+                        <button class="btn btn-warning rounded-pill w-100" type="button" data-bs-toggle="modal" data-bs-target="#productModal_{{data.product_id}}">Update</button>
                       </td>
                       <td class="col-md-1">
                         <form method="POST" action="{% url 'daily_report_form_detail_delete_product' id=employee_id tour_id=tour_id pk=data.id %}">
@@ -256,7 +256,7 @@
                       <td class="col-md-3">{{ data.unit }}</td>
                       <td class="col-md-3">{{ data.quantity }}</td>
                       <td class="col-md-1">
-                        <button class="btn btn-warning rounded-pill w-100" type="button" data-bs-toggle="modal" data-bs-target="#giftModal_{{forloop.counter}}">Update</button>
+                        <button class="btn btn-warning rounded-pill w-100" type="button" data-bs-toggle="modal" data-bs-target="#giftModal_{{data.gift_id}}">Update</button>
                       </td>
                       <td class="col-md-1">
                         <form method="POST" action="{% url 'daily_report_form_detail_delete_gift' id=employee_id tour_id=tour_id pk=data.id %}">
@@ -280,7 +280,7 @@
                       <th scope="col">Stockist Name</th>
                       <th scope="col">Time in</th>
                       <th scope="col">Time out</th>
-                      <th scope="col">Actions</th>
+                      <th scope="col">Action</th>
                       <th scope="col"></th>
                     </tr>
                   </thead>
@@ -321,7 +321,7 @@
                       <td class="col-md-3">{{ data.stockist_time_in|slice:":-3"|time:"g:i A" }}</td>
                       <td class="col-md-3">{{ data.stockist_time_out|slice:":-3"|time:"g:i A" }}</td>
                       <td class="col-md-1">
-                          <button class="btn btn-warning rounded-pill w-100" type="submit" data-bs-toggle="modal" data-bs-target="#stockistModal_{{forloop.counter}}">Update</button>
+                          <button class="btn btn-warning rounded-pill w-100" type="submit" data-bs-toggle="modal" data-bs-target="#stockistModal_{{data.stockist_id}}">Update</button>
                       </td>
                       <td class="col-md-1">
                         <form method="POST" action="{% url 'daily_report_form_detail_delete_stockist' id=employee_id tour_id=tour_id pk=data.id %}">
@@ -337,14 +337,9 @@
           </div>
           <hr />
           {% if showSubmitWarning %}
-          <!-- <p>Please fill the form</p> -->
-          <button type="button" class="btn btn-success w-100 rounded-pill" data-bs-toggle="modal" data-bs-target="#exampleModal2">Submit</button>
-          
-          <!-- <form method="POST" action="{% url 'submit_form' tour_id=tour_id %}">
-            {% csrf_token %} -->
+            <button type="button" class="btn btn-success w-100 rounded-pill" data-bs-toggle="modal" data-bs-target="#exampleModal2">Submit</button>
             {% else %}
             <button type="button" class="btn btn-success w-100 rounded-pill" data-bs-toggle="modal" data-bs-target="#exampleModal">Submit</button>
-          <!-- </form> -->
           {% endif %}
     </div>
   </div>
@@ -358,7 +353,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          Are you sure you want to submit this entry?
+          This entry will be closed once you submit. Are you sure you want to submit this entry and proceed further?
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
@@ -394,7 +389,7 @@
   {% for data in doctors_added %}
   <form method="POST" action="{% url 'update_doctor' id=employee_id tour_id=tour_id doc_id=data.doctor_id %}">
     {% csrf_token %}
-    <div class="modal fade" id="doctorModal_{{forloop.counter}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="doctorModal_{{data.doctor_id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog ">
         <div class="modal-content">
           <div class="modal-header">
@@ -405,7 +400,7 @@
             <div>
               <h6>Doctor Name</h6>
               <select id="doctor" name="doctor" class="form-select" aria-label="Default select example" required>
-                <option value="{{ data.doctor_id }}" {% if data.doctor_id in doctors %}selected{% endif %} disabled>{{ data.doctor.doctor_name}}</option>
+                <option value="{{ data.doctor_id }}" {% if data.doctor_id in doctors %}selected{% endif %}>{{ data.doctor.doctor_name}}</option>
                 {% for doctor in doctors %}
                   <option value="{{doctor.id}}">{{doctor.doctor_name}}</option>
                 {% endfor %}
@@ -436,7 +431,7 @@
   {% for data in products_added %}
   <form method="POST" action="{% url 'update_product' id=employee_id tour_id=tour_id product_id=data.product_id %}">
     {% csrf_token %}
-    <div class="modal fade" id="productModal_{{forloop.counter}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="productModal_{{data.product_id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog ">
         <div class="modal-content">
           <div class="modal-header">
@@ -447,7 +442,7 @@
             <div>
               <h6>Product Name</h6>
               <select id="product" name="product" class="form-select" aria-label="Default select example" required>
-                <option value="{{ data.product_id }}" {% if data.product_id in products %}selected{% endif %} disabled>{{ data.product.product}}</option>
+                <option value="{{ data.product_id }}" {% if data.product_id in products %}selected{% endif %}>{{ data.product.product}}</option>
                 {% for product in products %}
                   <option value="{{product.id}}">{{product.product}}</option>
                 {% endfor %}
@@ -456,7 +451,7 @@
             <div class="my-3">
               <h6>Unit</h6>
               <select id="product_unit" name="product_unit" class="form-select" aria-label="Default select example" required>
-                <option value="{{ data.unit_id }}" {% if data.unit_id in units %}selected{% endif %} disabled>{{ data.unit.unit }}</option>
+                <option value="{{ data.unit_id }}" {% if data.unit_id in units %}selected{% endif %}>{{ data.unit.unit }}</option>
                 {% for unit in units %}
                   <option value="{{unit.id}}">{{unit.unit}}</option>
                 {% endfor %}
@@ -482,7 +477,7 @@
   {% for data in gifts_added %}
   <form method="POST" action="{% url 'update_gift' id=employee_id tour_id=tour_id gift_id=data.gift_id %}">
     {% csrf_token %}
-    <div class="modal fade" id="giftModal_{{forloop.counter}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="giftModal_{{data.gift_id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog ">
         <div class="modal-content">
           <div class="modal-header">
@@ -493,7 +488,7 @@
             <div>
               <h6>Gift Name</h6>
               <select id="gift" name="gift" class="form-select" aria-label="Default select example" required>
-                <option value="{{ data.gift_id }}" {% if data.gift_id in gifts %}selected{% endif %} disabled>{{ data.gift.gift}}</option>
+                <option value="{{ data.gift_id }}" {% if data.gift_id in gifts %}selected{% endif %}>{{ data.gift.gift_name}}</option>
                 {% for gift in gifts %}
                   <option value="{{gift.id}}">{{gift.gift_name}}</option>
                 {% endfor %}
@@ -502,7 +497,7 @@
             <div class="my-3">
               <h6>Unit</h6>
               <select id="gift_unit" name="gift_unit" class="form-select" aria-label="Default select example" required>
-                <option value="{{ data.unit_id }}" {% if data.unit_id in units %}selected{% endif %} disabled>{{ data.unit.unit }}</option>
+                <option value="{{ data.unit_id }}" {% if data.unit_id in units %}selected{% endif %}>{{ data.unit.unit }}</option>
                 {% for unit in units %}
                   <option value="{{unit.id}}">{{unit.unit}}</option>
                 {% endfor %}
@@ -528,7 +523,7 @@
   {% for data in stockists_added %}
   <form method="POST" action="{% url 'update_stockist' id=employee_id tour_id=tour_id stockist_id=data.stockist_id %}">
     {% csrf_token %}
-    <div class="modal fade" id="stockistModal_{{forloop.counter}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="stockistModal_{{data.stockist_id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog ">
         <div class="modal-content">
           <div class="modal-header">
@@ -597,7 +592,9 @@
         }
     }
 
-    
+    function deleteCache() {
+      localStorage.clear()
+    }
 
     // // Get all checkboxes with class 'form-check-input'
     
