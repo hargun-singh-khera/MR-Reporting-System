@@ -327,7 +327,7 @@ def daily_report_form_detail(request,id,tour_id):
     if StockistAdded.objects.filter(daily_reporting_id=daily_reporting_id).exists():
         stockistAdded = True
     
-    if doctorAdded and productAdded and giftAdded and stockistAdded:
+    if doctorAdded and productAdded and giftAdded:
         showSubmitWarning = False
 
     context = {
@@ -481,8 +481,20 @@ def update_stockist(request, id, tour_id, stockist_id):
         
 def daily_report_form_detail_delete_doctor(request, id, tour_id, pk):
     if request.method == 'POST':
+        tour_program = TourProgram.objects.get(id=tour_id)
+        date = tour_program.date_of_tour
+        daily_reporting_id = DailyReporting.objects.filter(employee_id=id).filter(date_of_working=date).get().id
+        print("Daily reporting id:", daily_reporting_id)
+
         doctor = DoctorAdded.objects.get(pk=pk)
         print(doctor)
+
+        doctor_id = doctor.doctor
+        print("Doctor id:", doctor_id)
+        product = ProductAdded.objects.filter(daily_reporting_id=daily_reporting_id).filter(doctor_id=doctor_id)
+        gift = GiftAdded.objects.filter(daily_reporting_id=daily_reporting_id).filter(doctor_id=doctor_id)
+        product.delete()
+        gift.delete()
         doctor.delete()
         return HttpResponseRedirect(reverse('daily_report_form_detail', kwargs={'id': id, 'tour_id': tour_id}))
     

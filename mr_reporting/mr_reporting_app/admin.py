@@ -39,7 +39,8 @@ class CityMasterAdmin(admin.ModelAdmin):
 
 class AreaMasterAdmin(admin.ModelAdmin):
     form = AreaForm
-    list_display = ('area', 'city')
+    list_display = ('area', 'city', 'state', 'country')
+    list_filter = ('country', 'state', 'city')
     # autocomplete_fields = ['city']
     # search_fields = ['area']
     fieldsets = (
@@ -124,14 +125,17 @@ class ProductMasterAdmin(admin.ModelAdmin):
 
 class DoctorMasterAdmin(admin.ModelAdmin):
     list_display = ('doctor_name', 'area','mobile_number')
+    list_filter = ('doctor_name', 'area')
     fieldsets = (
         (None, {'fields': ('doctor_name', 'area', 'mobile_number')}),
     )
 
 class StockisterMasterAdmin(admin.ModelAdmin):
-    list_display = ('stockist_name', 'address', 'area','mobile_number')
+    form = StockistForm
+    list_display = ('stockist_name', 'address', 'area', 'mobile_number')
+    list_filter = ('country','state','city')
     fieldsets = (
-        (None, {'fields': ('stockist_name', 'address', 'area','mobile_number')}),
+        (None, {'fields': ('country','state','city','area','stockist_name','address','mobile_number' )}),
     )
     
     add_fieldsets = (
@@ -140,6 +144,8 @@ class StockisterMasterAdmin(admin.ModelAdmin):
             'fields': ('stockist_name', 'address', 'area','mobile_number')}
          ),
     )
+    class Media:
+        js = ('/static/js/dependent_dropdown.js',)
 
 class GiftMasterAdmin(admin.ModelAdmin):
     list_display = ('gift_name',)
@@ -151,6 +157,7 @@ class AreaMappingAdmin(admin.ModelAdmin):
     form = CustomAreaMapping
     # list_display = ['user', ]
     
+    
 
 class RequestsMasterAdmin(admin.ModelAdmin):
     pass
@@ -158,7 +165,7 @@ class RequestsMasterAdmin(admin.ModelAdmin):
 class TourProgramAdmin(admin.ModelAdmin):
     form = TourProgramForm
     list_display = ('employee', 'date_of_tour', 'from_area', 'to_area')
-    # exclude = ('submitted',)
+    exclude = ('submitted','blocked',)
     class Media:
         js = ('/static/js/dependent_dropdown.js',)
 
@@ -180,6 +187,30 @@ class TourProgramAdmin(admin.ModelAdmin):
     # def has_delete_permission(self, request, obj=None):
     #     return False
  
+class DoctorAddedInline(admin.TabularInline):
+    model = DoctorAdded
+    exclude = ('status',)
+
+class ProductAddedInline(admin.TabularInline):
+    model = ProductAdded
+    exclude = ('doctor',)
+
+class GiftAddedInline(admin.TabularInline):
+    model = GiftAdded
+    exclude = ('doctor',)
+
+class StockistAddedInline(admin.TabularInline):
+    model = StockistAdded
+
+class DailyReportingAdmin(admin.ModelAdmin):
+    inlines = [
+        DoctorAddedInline,
+        ProductAddedInline,
+        GiftAddedInline,
+        StockistAddedInline,
+    ]
+    def has_change_permission(self, request, obj=None):
+        return False
         
         
 admin.site.register(CountryMaster, CountryMasterAdmin)
@@ -196,8 +227,4 @@ admin.site.register(GiftMaster, GiftMasterAdmin)
 admin.site.register(UserAreaMapping, AreaMappingAdmin)
 # admin.site.register(RequestsMaster, RequestsMasterAdmin)
 admin.site.register(TourProgram, TourProgramAdmin)
-admin.site.register(DailyReporting)
-admin.site.register(DoctorAdded)
-admin.site.register(ProductAdded)
-admin.site.register(GiftAdded)
-admin.site.register(StockistAdded)
+admin.site.register(DailyReporting, DailyReportingAdmin)

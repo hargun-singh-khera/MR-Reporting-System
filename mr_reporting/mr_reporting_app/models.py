@@ -93,9 +93,6 @@ class UserMaster(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=60, unique=False)
     email = models.EmailField(unique=True)
 
-    # country = models.ForeignKey(CountryMaster, on_delete=models.CASCADE, null=False, blank=False)
-    # state = models.ForeignKey(StateMaster, on_delete=models.CASCADE, null=False)
-    # city = models.ForeignKey(CityMaster, on_delete=models.CASCADE, null=False)
     area = models.ForeignKey(AreaMaster, on_delete = models.CASCADE, null=True, blank=False)
     designation = models.ForeignKey(Group, on_delete = models.CASCADE, null=True)
     date_of_birth = models.DateField(blank=False, null=True)
@@ -129,8 +126,12 @@ class UserMaster(AbstractBaseUser, PermissionsMixin):
 class StockistMaster(models.Model):
     stockist_name = models.CharField(max_length=100, unique=True)
     address = models.TextField()
+    country = models.ForeignKey(CountryMaster, on_delete=models.CASCADE, null=False, blank=False)
+    state = models.ForeignKey(StateMaster, on_delete=models.CASCADE, null=False)
+    city = models.ForeignKey(CityMaster, on_delete=models.CASCADE, null=False)
     area = models.ForeignKey(AreaMaster, on_delete = models.CASCADE)
     mobile_number = models.CharField(max_length=10, unique=True)
+    
 
     def __str__(self):
         return self.stockist_name
@@ -140,17 +141,10 @@ class UserAreaMapping(models.Model):
     # pass
     user = models.ForeignKey(UserMaster, on_delete=models.CASCADE)
     areas = models.ManyToManyField(AreaMaster)
+
     def __str__(self):
         return str(self.user)
-
-
-# class RequestsMaster(models.Model):
-#     request_by = models.ForeignKey(UserMaster, on_delete=models.CASCADE)
-#     approval_status = models.BooleanField(default=False)
-
-#     def has_add_permission(self, request):
-#         # Disable the ability to add new objects
-#         return False
+    
     
 class TourProgram(models.Model):
     employee = models.ForeignKey(UserMaster, on_delete=models.CASCADE, blank=False, related_name='employee_tourprograms')

@@ -24,7 +24,7 @@ class CustomAreaMapping(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(CustomAreaMapping, self).__init__(*args, **kwargs)
-        self.fields['areas'].label = 'Areas'
+        self.fields['areas'].label = ''
 
 
     def save(self, commit=True):
@@ -104,20 +104,68 @@ class AreaForm(forms.ModelForm):
             self.fields['city'].queryset = CityMaster.objects.all()  # Reset city queryset
 
 
-class CustomUserCreationForm(UserCreationForm):
-    # country = forms.ModelChoiceField(
-    #     queryset=CountryMaster.objects.all(),
-    #     widget=forms.Select(attrs={'id': 'id_country'}),
-    # )
-    # state = forms.ModelChoiceField(
-    #     queryset=StateMaster.objects.none(),
-    #     widget=forms.Select(attrs={'id': 'id_state'}),
-    # )
-    # city = forms.ModelChoiceField(
-    #     queryset=CityMaster.objects.none(),
-    #     widget=forms.Select(attrs={'id': 'id_city'}),
-    # )
-    
+class StockistForm(forms.ModelForm):
+    country = forms.ModelChoiceField(
+        queryset=CountryMaster.objects.all(),
+        widget=forms.Select(attrs={'id': 'id_country'}),
+    )
+    state = forms.ModelChoiceField(
+        queryset=StateMaster.objects.none(),
+        widget=forms.Select(attrs={'id': 'id_state'}),
+    )
+    city = forms.ModelChoiceField(
+        queryset=CityMaster.objects.none(),
+        widget=forms.Select(attrs={'id': 'id_city'}),
+    )
+    area = forms.ModelChoiceField(
+        queryset=AreaMaster.objects.none(),
+        widget=forms.Select(attrs={'id': 'id_area'}),
+    )
+    class Meta:
+        model = StockistMaster
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super(StockistForm, self).__init__(*args, **kwargs)
+        country_id = kwargs.get('initial', {}).get('country', None)
+        state_id = kwargs.get('initial', {}).get('state', None)
+        city_id = kwargs.get('initial', {}).get('city', None)
+        if country_id:
+            try:
+                print("inside of country_id " + country_id)
+                # Assuming CountryMaster has a field with unique values like name
+                country = CountryMaster.objects.get(id=country_id)  # Adjust field name
+                self.fields['state'].queryset = StateMaster.objects.filter(country=country)
+                if state_id:
+                    try:
+                        print("inside of state_id " + state_id)
+                        # Assuming CountryMaster has a field with unique values like name
+                        state = StateMaster.objects.get(id=state_id)  # Adjust field name
+                        self.fields['city'].queryset = CityMaster.objects.filter(state=state)
+                        if city_id:
+                            try:
+                                print("inside of city_id " + city_id)
+                                # Assuming CountryMaster has a field with unique values like name
+                                city = CityMaster.objects.get(id=city_id)  # Adjust field name
+                                self.fields['area'].queryset = AreaMaster.objects.filter(city=city)
+                            except CityMaster.DoesNotExist:
+                                pass  # Handle case where country doesn't exist  
+
+                    except StateMaster.DoesNotExist:
+                        pass  # Handle case where country doesn't exist  
+            except CountryMaster.DoesNotExist:
+                pass  # Handle case where country doesn't exist
+        else:
+            self.fields['country'].queryset = CountryMaster.objects.all()
+            self.fields['state'].queryset = StateMaster.objects.all()
+            self.fields['city'].queryset = CityMaster.objects.all()
+            self.fields['area'].queryset = AreaMaster.objects.all()  # Reset city queryset
+
+
+class CustomUserCreationForm(UserCreationForm, forms.ModelForm):  
+    under = forms.ModelChoiceField(
+        queryset=UserMaster.objects.exclude(designation=3)
+    )
     class Meta:
         model = UserMaster
         fields = '__all__'
@@ -152,6 +200,7 @@ class TourProgramForm(forms.ModelForm):
     to_area = forms.ModelChoiceField(
         queryset=AreaMaster.objects.none()
     )
+    
     def __init__(self, *args, **kwargs):
         super(TourProgramForm, self).__init__(*args, **kwargs)
         employee_id = kwargs.get('initial', {}).get('employee', None)  
@@ -172,3 +221,10 @@ class TourProgramForm(forms.ModelForm):
             self.fields['employee'].queryset = UserMaster.objects.filter(is_superuser=False)
             self.fields['from_area'].queryset = AreaMaster.objects.all() 
             self.fields['to_area'].queryset = AreaMaster.objects.all()# Reset city queryset
+
+    def clean_date_of_tour(self):
+        date_of_tour = self.cleaned_data.get('date_of_tour')
+        # Check if the selected date is Saturday or Sunday
+        if date_of_tour.weekday() in [5, 6]:  # 5 is Saturday, 6 is Sunday
+            raise ValidationError("You cannot choose a Saturday or Sunday for the tour date.")
+        return date_of_tour

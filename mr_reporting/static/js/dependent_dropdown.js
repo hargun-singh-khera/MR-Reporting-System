@@ -20,6 +20,17 @@ function statefield() {
     }
 } 
 
+function cityfield() {
+    console.log("City changed")
+    var cityDropdown = document.getElementById('id_city');
+    if (cityDropdown) {
+        var countryId = document.getElementById('id_country').value;
+        var stateId = document.getElementById('id_state').value;
+        var cityId = cityDropdown.value;
+        window.location = getCurrentUrl() + "?country=" + countryId + "&state=" + stateId + "&city=" + cityId;
+    }
+} 
+
 function employeefield() {
     var employeeDropdown = document.getElementById('id_employee');
     if (employeeDropdown) {
@@ -33,6 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log("DOM Loaded");
     var countryDropdown = document.getElementById('id_country');
     var stateDropdown = document.getElementById('id_state');
+    var cityDropdown = document.getElementById('id_city');
     var employeeDropdown = document.getElementById('id_employee');
 
     if (countryDropdown) {
@@ -41,6 +53,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (stateDropdown) {
         stateDropdown.addEventListener('change', statefield);
+    }
+
+    if (cityDropdown) {
+        cityDropdown.addEventListener('change', cityfield);
     }
 
     if (employeeDropdown) {
