@@ -123,6 +123,7 @@ class DoctorForm(forms.ModelForm):
     class Meta:
         model = DoctorMaster
         fields = '__all__'
+        
     def __init__(self, *args, **kwargs):
         super(DoctorForm, self).__init__(*args, **kwargs)
         country_id = kwargs.get('initial', {}).get('country', None)

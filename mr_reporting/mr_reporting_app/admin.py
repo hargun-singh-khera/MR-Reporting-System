@@ -179,33 +179,20 @@ class TourProgramAdmin(admin.ModelAdmin):
 class DoctorAddedInline(admin.TabularInline):
     model = DoctorAdded
     exclude = ('status',)
-    fieldsets = (
-        ('Doctors Visited', {'fields': ('doctor', 'doctor_time_in', 'doctor_time_out')}),
-    )
     
 
 class ProductAddedInline(admin.TabularInline):
     model = ProductAdded
     exclude = ('doctor',)
-    fieldsets = (
-        ('Products Given', {'fields': ('product', 'unit', 'quantity')}),
-    )
     
 
 class GiftAddedInline(admin.TabularInline):
     model = GiftAdded
     exclude = ('doctor',)
-    fieldsets = (
-        ('Gifts Given', {'fields': ('gift', 'unit', 'quantity')}),
-    )
 
 class StockistAddedInline(admin.TabularInline):
     model = StockistAdded
-    fieldsets = (
-        ('Stockists Visited', {'fields': ('stockist', 'stockist_time_in', 'stockist_time_out')}),
-    )
     
-
 
 class DailyReportingAdmin(admin.ModelAdmin):
     inlines = [
@@ -220,8 +207,8 @@ class DailyReportingAdmin(admin.ModelAdmin):
     def has_add_permission(self, request, obj=None):
         return False
     
-    def has_delete_permission(self, request, obj=None):
-        return False
+    # def has_delete_permission(self, request, obj=None):
+    #     return False
         
         
 admin.site.register(CountryMaster, CountryMasterAdmin)

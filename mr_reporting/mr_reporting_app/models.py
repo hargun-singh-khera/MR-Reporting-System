@@ -117,13 +117,13 @@ class UserMaster(AbstractBaseUser, PermissionsMixin):
         return self.name
     
     
-# @receiver(post_save, sender=UserMaster)
-# def grant_user_permissions(sender, instance, created, **kwargs):
-#     if created:  # Only run this logic when a new user is created
-#         user_group = instance.designation  # Retrieve the group associated with the user
-#         if user_group:
-#             permissions = Permission.objects.filter(group=user_group)  # Retrieve permissions associated with that group
-#             instance.user_permissions.set(permissions)  # Assign permissions to the user
+@receiver(post_save, sender=UserMaster)
+def grant_user_permissions(sender, instance, created, **kwargs):
+    if created:  # Only run this logic when a new user is created
+        user_group = instance.designation  # Retrieve the group associated with the user
+        if user_group:
+            permissions = Permission.objects.filter(group=user_group)  # Retrieve permissions associated with that group
+            instance.user_permissions.set(permissions)  # Assign permissions to the user
 
 
 class StockistMaster(models.Model):
