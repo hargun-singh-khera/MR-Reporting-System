@@ -27,7 +27,7 @@ class CityMasterAdmin(admin.ModelAdmin):
     # search_fields = ['state']
     list_display = ('city', 'state', 'country')
     # autocomplete_fields = ['state', 'country']
-    list_filter = ('city', 'state')
+    list_filter = ('country', 'state')
     # search_fields = ['city']
     fieldsets = (
       (None, {
@@ -83,17 +83,17 @@ class UserMasterAdmin(admin.ModelAdmin):
             form.base_fields['under'].queryset = form.base_fields['under'].queryset.exclude(id=obj.id)
         return form
 
-    # def save_model(self, request, obj, form, change):
-    #     if not change:
-    #         email = form.cleaned_data.get('email')
-    #         username = form.cleaned_data.get('username')
-    #         if UserMaster.objects.filter(email=email).exists():
-    #             raise ValidationError("Email already exists")
-    #         if UserMaster.objects.filter(username=username).exists():
-    #             raise ValidationError("Username already exists")
-    #         if "_addanother" in request.POST or "_save" in request.POST:
-    #             self.send_email_to_user(request, form, email)
-    #         super().save_model(request, obj, form, change)
+    def save_model(self, request, obj, form, change):
+        if not change:
+            email = form.cleaned_data.get('email')
+            username = form.cleaned_data.get('username')
+            if UserMaster.objects.filter(email=email).exists():
+                raise ValidationError("Email already exists")
+            if UserMaster.objects.filter(username=username).exists():
+                raise ValidationError("Username already exists")
+            if "_addanother" in request.POST or "_save" in request.POST:
+                self.send_email_to_user(request, form, email)
+            super().save_model(request, obj, form, change)
         
     def send_email_to_user(self, request, form, email):
         print("Email sent")
@@ -122,18 +122,26 @@ class UnitMasterAdmin(admin.ModelAdmin):
 
 class ProductMasterAdmin(admin.ModelAdmin):
     list_display = ('product', 'unit')
+    list_filter = ('unit',)
+    list_per_page = 10
 
 class DoctorMasterAdmin(admin.ModelAdmin):
+    form = DoctorForm
     list_display = ('doctor_name', 'area','mobile_number')
-    list_filter = ('doctor_name', 'area')
+    list_filter = ('country','state','city')
+    list_per_page = 10
     fieldsets = (
-        (None, {'fields': ('doctor_name', 'area', 'mobile_number')}),
+        (None, {'fields': ('country','state','city', 'area', 'doctor_name', 'mobile_number')}),
     )
+    class Media:
+        js = ('/static/js/dependent_dropdown.js',)
+    
 
 class StockisterMasterAdmin(admin.ModelAdmin):
     form = StockistForm
     list_display = ('stockist_name', 'address', 'area', 'mobile_number')
     list_filter = ('country','state','city')
+    list_per_page = 10
     fieldsets = (
         (None, {'fields': ('country','state','city','area','stockist_name','address','mobile_number' )}),
     )
@@ -149,6 +157,7 @@ class StockisterMasterAdmin(admin.ModelAdmin):
 
 class GiftMasterAdmin(admin.ModelAdmin):
     list_display = ('gift_name',)
+    list_per_page = 10
 
 
 class AreaMappingAdmin(admin.ModelAdmin):
@@ -156,51 +165,47 @@ class AreaMappingAdmin(admin.ModelAdmin):
     title = ''
     form = CustomAreaMapping
     # list_display = ['user', ]
-    
-    
-
-class RequestsMasterAdmin(admin.ModelAdmin):
-    pass
  
 class TourProgramAdmin(admin.ModelAdmin):
     form = TourProgramForm
     list_display = ('employee', 'date_of_tour', 'from_area', 'to_area')
+    list_filter = ('date_of_tour',)
     exclude = ('submitted','blocked',)
+    list_per_page = 10
     class Media:
         js = ('/static/js/dependent_dropdown.js',)
 
-
-# class DailyReportingAdmin(admin.ModelAdmin):
-#     list_display = ('employee', 'designation', 'date_of_working', 'source_area', 'destination_area', 'doctor', 'doctor_time_in', 
-#                     'doctor_time_out', 'product', 'product_unit', 'product_quantity', 'gift', 'gift_unit', 'gift_quantity', 
-#                     'stockist', 'stockist_time_in', 'stockist_time_out')
-#     search_fields = ('designation', 'date_of_working')
-#     list_filter = ('employee', 'designation', 'date_of_working', 'doctor', 'product', 'gift', 'stockist')
-
-    
-    # def has_add_permission(self, request):
-    #     return False
-
-    # def has_change_permission(self, request, obj=None):
-    #     return False
-
-    # def has_delete_permission(self, request, obj=None):
-    #     return False
  
 class DoctorAddedInline(admin.TabularInline):
     model = DoctorAdded
     exclude = ('status',)
+    fieldsets = (
+        ('Doctors Visited', {'fields': ('doctor', 'doctor_time_in', 'doctor_time_out')}),
+    )
+    
 
 class ProductAddedInline(admin.TabularInline):
     model = ProductAdded
     exclude = ('doctor',)
+    fieldsets = (
+        ('Products Given', {'fields': ('product', 'unit', 'quantity')}),
+    )
+    
 
 class GiftAddedInline(admin.TabularInline):
     model = GiftAdded
     exclude = ('doctor',)
+    fieldsets = (
+        ('Gifts Given', {'fields': ('gift', 'unit', 'quantity')}),
+    )
 
 class StockistAddedInline(admin.TabularInline):
     model = StockistAdded
+    fieldsets = (
+        ('Stockists Visited', {'fields': ('stockist', 'stockist_time_in', 'stockist_time_out')}),
+    )
+    
+
 
 class DailyReportingAdmin(admin.ModelAdmin):
     inlines = [
@@ -210,6 +215,12 @@ class DailyReportingAdmin(admin.ModelAdmin):
         StockistAddedInline,
     ]
     def has_change_permission(self, request, obj=None):
+        return False
+    
+    def has_add_permission(self, request, obj=None):
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
         return False
         
         

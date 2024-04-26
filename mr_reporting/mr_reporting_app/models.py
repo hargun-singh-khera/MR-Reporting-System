@@ -53,6 +53,9 @@ class ProductMaster(models.Model):
    
 class DoctorMaster(models.Model):
     doctor_name = models.CharField(max_length=100)
+    country = models.ForeignKey(CountryMaster, on_delete=models.CASCADE, null=False, blank=False)
+    state = models.ForeignKey(StateMaster, on_delete=models.CASCADE, null=False)
+    city = models.ForeignKey(CityMaster, on_delete=models.CASCADE, null=False)
     area = models.ForeignKey(AreaMaster, on_delete = models.CASCADE)
     mobile_number = models.CharField(max_length=10, unique=True)
     def __str__(self):

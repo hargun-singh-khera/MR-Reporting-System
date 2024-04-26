@@ -103,6 +103,74 @@ class AreaForm(forms.ModelForm):
             self.fields['state'].queryset = StateMaster.objects.all()
             self.fields['city'].queryset = CityMaster.objects.all()  # Reset city queryset
 
+class DoctorForm(forms.ModelForm):
+    country = forms.ModelChoiceField(
+        queryset=CountryMaster.objects.all(),
+        widget=forms.Select(attrs={'id': 'id_country'}),
+    )
+    state = forms.ModelChoiceField(
+        queryset=StateMaster.objects.none(),
+        widget=forms.Select(attrs={'id': 'id_state'}),
+    )
+    city = forms.ModelChoiceField(
+        queryset=CityMaster.objects.none(),
+        widget=forms.Select(attrs={'id': 'id_city'}),
+    )
+    area = forms.ModelChoiceField(
+        queryset=AreaMaster.objects.none(),
+        widget=forms.Select(attrs={'id': 'id_area'}),
+    )
+    class Meta:
+        model = DoctorMaster
+        fields = '__all__'
+    def __init__(self, *args, **kwargs):
+        super(DoctorForm, self).__init__(*args, **kwargs)
+        country_id = kwargs.get('initial', {}).get('country', None)
+        state_id = kwargs.get('initial', {}).get('state', None)
+        city_id = kwargs.get('initial', {}).get('city', None)
+        if country_id:
+            try:
+                print("inside of country_id " + country_id)
+                # Assuming CountryMaster has a field with unique values like name
+                country = CountryMaster.objects.get(id=country_id)  # Adjust field name
+                self.fields['state'].queryset = StateMaster.objects.filter(country=country)
+                if state_id:
+                    try:
+                        print("inside of state_id " + state_id)
+                        # Assuming CountryMaster has a field with unique values like name
+                        state = StateMaster.objects.get(id=state_id)  # Adjust field name
+                        self.fields['city'].queryset = CityMaster.objects.filter(state=state)
+                        if city_id:
+                            try:
+                                print("inside of city_id " + city_id)
+                                # Assuming CountryMaster has a field with unique values like name
+                                city = CityMaster.objects.get(id=city_id)  # Adjust field name
+                                self.fields['area'].queryset = AreaMaster.objects.filter(city=city)
+                            except CityMaster.DoesNotExist:
+                                pass  # Handle case where country doesn't exist  
+
+                    except StateMaster.DoesNotExist:
+                        pass  # Handle case where country doesn't exist  
+            except CountryMaster.DoesNotExist:
+                pass  # Handle case where country doesn't exist
+        else:
+            self.fields['country'].queryset = CountryMaster.objects.all()
+            self.fields['state'].queryset = StateMaster.objects.all()
+            self.fields['city'].queryset = CityMaster.objects.all()
+            self.fields['area'].queryset = AreaMaster.objects.all()  # Reset city queryset
+    def clean_mobile_number(self):
+        mobile_number = self.cleaned_data.get('mobile_number')
+
+        # Check if mobile_number is not empty and is a number
+        if mobile_number and not mobile_number.isdigit():
+            raise forms.ValidationError("Mobile number should contain only digits.")
+
+        # Check if mobile_number has exactly 10 digits
+        if mobile_number and len(mobile_number) != 10:
+            raise forms.ValidationError("Mobile number should be 10 digits long.")
+
+        return mobile_number
+
 
 class StockistForm(forms.ModelForm):
     country = forms.ModelChoiceField(
